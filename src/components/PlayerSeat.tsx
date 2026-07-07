@@ -19,18 +19,12 @@ function SeatCards({
   const lastDiscard = player.discards[player.discards.length - 1];
   return (
     <div className="flex items-end justify-center gap-1 lg:gap-2">
-      {player.isOut ? (
-        <span className="label rounded border border-border px-1.5 py-1 text-muted">
-          Out
-        </span>
-      ) : (
-        showHand && (
-          <div className="flex items-center gap-1">
-            {Array.from({ length: Math.max(1, player.hand.length) }).map(
-              (_, i) => <CardBack key={i} size={size} />,
-            )}
-          </div>
-        )
+      {!player.isOut && showHand && (
+        <div className="flex items-center gap-1">
+          {Array.from({ length: Math.max(1, player.hand.length) }).map(
+            (_, i) => <CardBack key={i} size={size} />,
+          )}
+        </div>
       )}
 
       {lastDiscard !== undefined && (
@@ -92,9 +86,11 @@ export function PlayerSeat({
         <SeatCards player={player} size="sm" />
       </div>
 
-      {player.isProtected && !player.isOut && (
+      {player.isOut ? (
+        <span className="label text-red-400">Out</span>
+      ) : player.isProtected ? (
         <span className="label text-accent">Shielded</span>
-      )}
+      ) : null}
     </div>
   );
 }

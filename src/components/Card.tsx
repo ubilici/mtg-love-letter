@@ -3,7 +3,7 @@ import { CARD_DEFS, type CardValue } from "../game/cards";
 type CardSize = "xs" | "sm" | "md" | "lg";
 
 const SIZES: Record<CardSize, string> = {
-  xs: "w-11",
+  xs: "w-[4.4rem]",
   sm: "w-16",
   md: "w-24",
   lg: "w-40",
