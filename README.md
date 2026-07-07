@@ -1,4 +1,4 @@
-# Liliana's Favor — a Love Letter game
+# Liliana's Favor: a Love Letter game
 
 A browser version of the board game **Love Letter**, reskinned in the Magic:
 The Gathering universe around **Liliana Vess**. Play solo against three
@@ -24,7 +24,7 @@ The 8 Love Letter roles map onto the MTG art in `public/cards/`:
 
 | Value | Role | Card | Effect |
 |------|------|------|--------|
-| 1 | Guard | Zombie | Name a card 2–8; a matching rival is cast out |
+| 1 | Guard | Zombie | Name a card 2-8; a matching rival is cast out |
 | 2 | Priest | Dark Confidant | Look at a rival's hand |
 | 3 | Baron | Deadly Assassin | Compare hands; the lesser is cast out |
 | 4 | Handmaid | Grave Titan | Untargetable until your next turn |
@@ -37,6 +37,6 @@ First player to 4 favors wins the match.
 
 ## Layout
 
-- `src/game/` — pure, framework-free game engine, rules, and bot AI (unit tested)
-- `src/lib/useGameController.ts` — React hook driving the turn loop and bot pacing
-- `src/components/` — themed UI (table, cards, prompts, log, screens)
+- `src/game/`: pure, framework-free game engine, rules, and bot AI (unit tested)
+- `src/lib/useGameController.ts`: React hook driving the turn loop and bot pacing
+- `src/components/`: themed UI (table, cards, prompts, log, screens)

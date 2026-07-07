@@ -25,7 +25,7 @@ export function RevealToast({
           <Card value={reveal.card} size="lg" />
         </div>
         <p className="text-base font-semibold tracking-tight">
-          {def.mtgName} — the {def.role}
+          {def.mtgName}, the {def.role}
         </p>
         <button
           type="button"

@@ -146,5 +146,5 @@ export function cardName(value: CardValue): string {
 
 export function cardTitle(value: CardValue): string {
   const def = CARD_DEFS[value];
-  return `${def.mtgName} — the ${def.role}`;
+  return `${def.mtgName}, the ${def.role}`;
 }

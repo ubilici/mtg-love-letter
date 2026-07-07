@@ -10,9 +10,9 @@ export function Menu({ onStart }: { onStart: () => void }) {
           Liliana's Favor
         </h1>
         <p className="max-w-lg text-sm text-muted">
-          Sixteen souls vie for the necromancer's favor. Outwit three rivals,
-          deliver your card, and survive the graveyard. Whoever earns four
-          favors wins Liliana's heart.
+          Three rivals. One necromancer's favor. Read your foes, play your
+          card, and outlast the graveyard. The first to four favors wins
+          Liliana's heart.
         </p>
       </div>
 
@@ -21,7 +21,7 @@ export function Menu({ onStart }: { onStart: () => void }) {
           <div
             key={v}
             className="relative aspect-[63/88] w-20 overflow-hidden rounded-lg border border-border sm:w-24"
-            title={`${CARD_DEFS[v].mtgName} — the ${CARD_DEFS[v].role}`}
+            title={`${CARD_DEFS[v].mtgName}, the ${CARD_DEFS[v].role}`}
           >
             <img
               src={CARD_DEFS[v].art}
