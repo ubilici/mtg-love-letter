@@ -23,26 +23,38 @@ function CenterPod({
   turnLabel: string;
 }) {
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="flex items-end gap-3">
-        <div className="flex flex-col items-center gap-1">
-          <div className="relative">
-            <CardBack size="md" />
-            <span className="absolute -bottom-2 -right-2 flex h-6 min-w-6 items-center justify-center rounded-full border border-accent/50 bg-black/85 px-1 text-xs font-semibold text-accent">
-              {deckCount}
-            </span>
+    <>
+      <div className="hidden flex-col items-center gap-2 lg:flex">
+        <div className="flex items-end gap-3">
+          <div className="flex flex-col items-center gap-1">
+            <div className="relative">
+              <CardBack size="md" />
+              <span className="absolute -bottom-2 -right-2 flex h-6 min-w-6 items-center justify-center rounded-full border border-accent/50 bg-black/85 px-1 text-xs font-semibold text-accent">
+                {deckCount}
+              </span>
+            </div>
+            <span className="label text-muted">Deck</span>
           </div>
-          <span className="label text-muted">Deck</span>
+          <div className="flex flex-col items-center gap-1 opacity-60">
+            <CardBack size="sm" />
+            <span className="label text-muted">Banished</span>
+          </div>
         </div>
-        <div className="flex flex-col items-center gap-1 opacity-60">
-          <CardBack size="sm" />
-          <span className="label text-muted">Banished</span>
-        </div>
+        <p className="rounded-full border border-border bg-black/40 px-3 py-1 text-xs text-accent text-glow-soft">
+          {turnLabel}
+        </p>
       </div>
-      <p className="rounded-full border border-border bg-black/40 px-3 py-1 text-xs text-accent text-glow-soft">
-        {turnLabel}
-      </p>
-    </div>
+
+      <div className="flex items-center gap-2 lg:hidden">
+        <span className="rounded-full border border-border bg-black/40 px-3 py-1 text-xs text-accent text-glow-soft">
+          {turnLabel}
+        </span>
+        <span className="flex items-center gap-1 rounded-full border border-border bg-black/40 px-2.5 py-1 text-xs text-muted">
+          <span className="font-semibold text-accent">{deckCount}</span>
+          in deck
+        </span>
+      </div>
+    </>
   );
 }
 
