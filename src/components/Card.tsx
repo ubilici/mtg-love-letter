@@ -103,7 +103,7 @@ export function Card({
       {detail ? (
         <div className="absolute inset-x-0 bottom-0 p-2">
           <div className="flex h-9 items-end">
-            <span className="line-clamp-2 text-sm font-semibold leading-tight text-foreground">
+            <span className="line-clamp-2 text-sm font-semibold leading-tight text-accent">
               {def.mtgName}
             </span>
           </div>
@@ -112,8 +112,8 @@ export function Card({
           </p>
         </div>
       ) : (
-        <div className="absolute inset-x-0 bottom-0 p-1.5">
-          <div className="truncate text-[0.62rem] font-semibold leading-tight text-foreground">
+        <div className="absolute inset-x-0 bottom-0 p-1">
+          <div className="line-clamp-2 text-[0.5rem] font-semibold leading-tight text-accent">
             {def.mtgName}
           </div>
         </div>

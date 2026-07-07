@@ -32,7 +32,7 @@ export function Menu({ onStart }: { onStart: () => void }) {
             <span className="absolute left-1 top-1 flex h-5 w-5 items-center justify-center rounded-full border border-accent/70 bg-black/70 text-[0.65rem] font-semibold text-accent">
               {v}
             </span>
-            <span className="absolute inset-x-0 bottom-0 truncate px-1 pb-1 text-[0.55rem] text-foreground">
+            <span className="absolute inset-x-0 bottom-0 line-clamp-2 px-1 pb-1 text-[0.55rem] leading-tight text-accent">
               {CARD_DEFS[v].mtgName}
             </span>
           </div>
