@@ -8,6 +8,7 @@ import { Hand } from "./Hand";
 import { EventLog } from "./EventLog";
 import { ActionPrompt } from "./ActionPrompt";
 import { BotActionBanner } from "./BotActionBanner";
+import { Grimoire } from "./Grimoire";
 import { RevealToast } from "./RevealToast";
 import { RoundBanner } from "./RoundBanner";
 import { MatchOverScreen } from "./MatchOverScreen";
@@ -57,6 +58,7 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
     isHumanActable,
   } = ctrl;
   const [selected, setSelected] = useState<CardValue | null>(null);
+  const [showGrimoire, setShowGrimoire] = useState(false);
 
   useEffect(() => {
     if (!isHumanActable) setSelected(null);
@@ -96,6 +98,13 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
           <span className="hidden text-xs text-muted sm:inline">
             First to {state.tokensToWin} favors
           </span>
+          <button
+            type="button"
+            onClick={() => setShowGrimoire(true)}
+            className="rounded-md border border-border px-3 py-1.5 text-xs text-muted transition hover:border-accent hover:text-foreground"
+          >
+            Grimoire
+          </button>
           <button
             type="button"
             onClick={newMatch}
@@ -190,6 +199,8 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
           onCancel={() => setSelected(null)}
         />
       )}
+
+      {showGrimoire && <Grimoire onClose={() => setShowGrimoire(false)} />}
 
       {announce && <BotActionBanner state={state} action={announce} />}
 
