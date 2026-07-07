@@ -15,6 +15,7 @@ interface CardProps {
   selectable?: boolean;
   selected?: boolean;
   dimmed?: boolean;
+  detail?: boolean;
   onClick?: () => void;
   className?: string;
 }
@@ -57,6 +58,7 @@ export function Card({
   selectable,
   selected,
   dimmed,
+  detail,
   onClick,
   className = "",
 }: CardProps) {
@@ -88,18 +90,34 @@ export function Card({
         className="absolute inset-0 h-full w-full object-cover"
         draggable={false}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40" />
+      <div
+        className={`absolute inset-0 ${
+          detail
+            ? "bg-[linear-gradient(to_top,#000_4%,rgba(0,0,0,0.82)_34%,transparent_64%)]"
+            : "bg-gradient-to-t from-black/85 via-transparent to-black/40"
+        }`}
+      />
       <div className="absolute left-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full border border-accent/70 bg-black/70 text-xs font-semibold text-accent">
         {value}
       </div>
-      <div className="absolute inset-x-0 bottom-0 p-1.5">
-        <div className="truncate text-[0.62rem] font-semibold leading-tight text-foreground">
-          {def.mtgName}
+      {detail ? (
+        <div className="absolute inset-x-0 bottom-0 p-2">
+          <div className="flex h-9 items-end">
+            <span className="line-clamp-2 text-sm font-semibold leading-tight text-foreground">
+              {def.mtgName}
+            </span>
+          </div>
+          <p className="mt-1 text-[0.68rem] leading-snug text-muted">
+            {def.description}
+          </p>
         </div>
-        <div className="label truncate text-accent" style={{ fontSize: "0.5rem" }}>
-          {def.role}
+      ) : (
+        <div className="absolute inset-x-0 bottom-0 p-1.5">
+          <div className="truncate text-[0.62rem] font-semibold leading-tight text-foreground">
+            {def.mtgName}
+          </div>
         </div>
-      </div>
+      )}
     </button>
   );
 }

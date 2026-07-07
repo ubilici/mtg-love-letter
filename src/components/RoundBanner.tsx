@@ -1,5 +1,4 @@
 import type { GameState } from "../game/types";
-import { CARD_DEFS } from "../game/cards";
 import { Card } from "./Card";
 
 export function RoundBanner({
@@ -33,9 +32,6 @@ export function RoundBanner({
             <div key={p.id} className="flex flex-col items-center gap-1">
               {p.hand[0] !== undefined && <Card value={p.hand[0]} size="sm" />}
               <span className="text-xs text-foreground">{p.name}</span>
-              <span className="label text-muted">
-                {p.hand[0] !== undefined ? CARD_DEFS[p.hand[0]].role : ""}
-              </span>
             </div>
           ))}
         </div>

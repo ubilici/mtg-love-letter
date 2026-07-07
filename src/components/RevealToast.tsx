@@ -22,11 +22,9 @@ export function RevealToast({
           {target.name} is holding
         </p>
         <div className="my-4 flex justify-center">
-          <Card value={reveal.card} size="lg" />
+          <Card value={reveal.card} size="lg" detail />
         </div>
-        <p className="text-base font-semibold tracking-tight">
-          {def.mtgName}, the {def.role}
-        </p>
+        <p className="text-base font-semibold tracking-tight">{def.mtgName}</p>
         <button
           type="button"
           onClick={onDismiss}

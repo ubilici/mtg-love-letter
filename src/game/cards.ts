@@ -107,7 +107,7 @@ export const CARD_DEFS: Record<CardValue, CardDef> = {
     needsGuess: false,
     canTargetSelf: false,
     description:
-      "No effect, but must be discarded if held with the King or the Prince.",
+      "No effect, but must be discarded if held with Nicol Bolas or The Raven Man.",
     flavor: "The demon's bargain will not abide a rival crown.",
   },
   8: {
@@ -142,9 +142,4 @@ export function buildDeck(): CardValue[] {
 export function cardName(value: CardValue): string {
   const def = CARD_DEFS[value];
   return `${def.mtgName}`;
-}
-
-export function cardTitle(value: CardValue): string {
-  const def = CARD_DEFS[value];
-  return `${def.mtgName}, the ${def.role}`;
 }

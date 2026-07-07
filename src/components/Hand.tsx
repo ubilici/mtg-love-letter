@@ -1,4 +1,4 @@
-import { CARD_DEFS, type CardValue } from "../game/cards";
+import { type CardValue } from "../game/cards";
 import { Card } from "./Card";
 
 interface HandProps {
@@ -24,20 +24,17 @@ export function Hand({
         {hand.map((value, i) => {
           const isPlayable = actable && playable.includes(value);
           return (
-            <div key={`${value}-${i}`} className="flex flex-col items-center gap-1">
-              <Card
-                value={value}
-                size="lg"
-                selectable={isPlayable}
-                selected={selected === value}
-                dimmed={actable && !isPlayable}
-                onClick={isPlayable ? () => onSelect(value) : undefined}
-                className="anim-deal"
-              />
-              <span className="hidden max-w-40 text-center text-[0.65rem] leading-tight text-muted sm:block">
-                {CARD_DEFS[value].description}
-              </span>
-            </div>
+            <Card
+              key={`${value}-${i}`}
+              value={value}
+              size="lg"
+              detail
+              selectable={isPlayable}
+              selected={selected === value}
+              dimmed={actable && !isPlayable}
+              onClick={isPlayable ? () => onSelect(value) : undefined}
+              className="anim-deal"
+            />
           );
         })}
       </div>

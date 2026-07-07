@@ -21,7 +21,7 @@ export function Menu({ onStart }: { onStart: () => void }) {
           <div
             key={v}
             className="relative aspect-[63/88] w-20 overflow-hidden rounded-lg border border-border sm:w-24"
-            title={`${CARD_DEFS[v].mtgName}, the ${CARD_DEFS[v].role}`}
+            title={CARD_DEFS[v].description}
           >
             <img
               src={CARD_DEFS[v].art}
@@ -33,7 +33,7 @@ export function Menu({ onStart }: { onStart: () => void }) {
               {v}
             </span>
             <span className="absolute inset-x-0 bottom-0 truncate px-1 pb-1 text-[0.55rem] text-foreground">
-              {CARD_DEFS[v].role}
+              {CARD_DEFS[v].mtgName}
             </span>
           </div>
         ))}
