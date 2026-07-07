@@ -10,24 +10,28 @@ interface PlayerSeatProps {
 function SeatCards({
   player,
   size,
+  showHand = true,
 }: {
   player: Player;
   size: "xs" | "sm";
+  showHand?: boolean;
 }) {
   const lastDiscard = player.discards[player.discards.length - 1];
   return (
-    <div className="flex items-end gap-1 lg:gap-2">
-      <div className="flex items-center gap-1">
-        {player.isOut ? (
-          <span className="label rounded border border-border px-1.5 py-1 text-muted">
-            Out
-          </span>
-        ) : (
-          Array.from({ length: Math.max(1, player.hand.length) }).map((_, i) => (
-            <CardBack key={i} size={size} />
-          ))
-        )}
-      </div>
+    <div className="flex items-end justify-center gap-1 lg:gap-2">
+      {player.isOut ? (
+        <span className="label rounded border border-border px-1.5 py-1 text-muted">
+          Out
+        </span>
+      ) : (
+        showHand && (
+          <div className="flex items-center gap-1">
+            {Array.from({ length: Math.max(1, player.hand.length) }).map(
+              (_, i) => <CardBack key={i} size={size} />,
+            )}
+          </div>
+        )
+      )}
 
       {lastDiscard !== undefined && (
         <div className="relative">
@@ -81,8 +85,8 @@ export function PlayerSeat({
         <FavorPips favor={player.favor} total={tokensToWin} />
       </div>
 
-      <div className="lg:hidden">
-        <SeatCards player={player} size="xs" />
+      <div className="flex min-h-[3.9rem] items-end lg:hidden">
+        <SeatCards player={player} size="xs" showHand={false} />
       </div>
       <div className="hidden lg:block">
         <SeatCards player={player} size="sm" />
