@@ -71,6 +71,7 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
   } = ctrl;
   const [selected, setSelected] = useState<CardValue | null>(null);
   const [showGrimoire, setShowGrimoire] = useState(false);
+  const [showLog, setShowLog] = useState(false);
 
   useEffect(() => {
     if (!isHumanActable) setSelected(null);
@@ -129,7 +130,7 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
 
       <main className="flex min-h-0 flex-1">
         <section className="relative flex min-h-0 flex-1 flex-col items-center gap-3 overflow-y-auto p-3">
-          <div className="flex w-full flex-wrap items-start justify-center gap-2">
+          <div className="grid w-full grid-cols-3 gap-1.5 lg:flex lg:flex-wrap lg:items-start lg:justify-center lg:gap-2">
             {[1, 2, 3].map((i) => (
               <PlayerSeat
                 key={i}
@@ -190,10 +191,13 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
               />
             )}
 
-            <EventLog
-              log={state.log.slice(-30)}
-              className="max-h-28 w-full max-w-md lg:hidden"
-            />
+            <button
+              type="button"
+              onClick={() => setShowLog(true)}
+              className="rounded-md border border-border px-4 py-1.5 text-xs text-muted transition hover:border-accent hover:text-foreground lg:hidden"
+            >
+              Chronicle
+            </button>
           </div>
         </section>
 
@@ -213,6 +217,30 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
       )}
 
       {showGrimoire && <Grimoire onClose={() => setShowGrimoire(false)} />}
+
+      {showLog && (
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-black/70 lg:hidden anim-fade"
+          onClick={() => setShowLog(false)}
+        >
+          <div
+            className="relative w-full anim-rise"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setShowLog(false)}
+              className="absolute right-3 top-2 z-10 rounded-full border border-border bg-black/60 px-3 py-1 text-xs text-muted transition hover:border-accent hover:text-foreground"
+            >
+              Close
+            </button>
+            <EventLog
+              log={state.log}
+              className="max-h-[70vh] w-full rounded-b-none"
+            />
+          </div>
+        </div>
+      )}
 
       {announce && <BotActionBanner state={state} action={announce} />}
 

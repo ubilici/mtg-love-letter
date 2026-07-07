@@ -1,8 +1,9 @@
 import { CARD_DEFS, type CardValue } from "../game/cards";
 
-type CardSize = "sm" | "md" | "lg";
+type CardSize = "xs" | "sm" | "md" | "lg";
 
 const SIZES: Record<CardSize, string> = {
+  xs: "w-11",
   sm: "w-16",
   md: "w-24",
   lg: "w-40",
