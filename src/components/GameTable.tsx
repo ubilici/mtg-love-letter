@@ -7,6 +7,7 @@ import { PlayerSeat } from "./PlayerSeat";
 import { Hand } from "./Hand";
 import { EventLog } from "./EventLog";
 import { ActionPrompt } from "./ActionPrompt";
+import { BotActionBanner } from "./BotActionBanner";
 import { RevealToast } from "./RevealToast";
 import { RoundBanner } from "./RoundBanner";
 import { MatchOverScreen } from "./MatchOverScreen";
@@ -45,8 +46,16 @@ function CenterPod({
 }
 
 export function GameTable({ ctrl }: { ctrl: Controller }) {
-  const { state, reveal, dismissReveal, play, nextRound, newMatch, isHumanActable } =
-    ctrl;
+  const {
+    state,
+    reveal,
+    dismissReveal,
+    announce,
+    play,
+    nextRound,
+    newMatch,
+    isHumanActable,
+  } = ctrl;
   const [selected, setSelected] = useState<CardValue | null>(null);
 
   useEffect(() => {
@@ -181,6 +190,8 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
           onCancel={() => setSelected(null)}
         />
       )}
+
+      {announce && <BotActionBanner state={state} action={announce} />}
 
       {reveal && (
         <RevealToast state={state} reveal={reveal} onDismiss={dismissReveal} />
