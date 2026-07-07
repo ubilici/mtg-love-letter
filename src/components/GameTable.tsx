@@ -143,7 +143,7 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
 
           <CenterPod deckCount={state.deck.length} turnLabel={turnLabel} />
 
-          <div className="mt-auto flex w-full flex-col items-center gap-3 pt-2">
+          <div className="mt-auto mb-12 flex w-full flex-col items-center gap-2 pt-0 lg:mb-0 lg:gap-3 lg:pt-2">
             <div
               className={`rounded-xl border px-4 py-2 transition ${
                 state.currentPlayerIndex === 0 && !human.isOut
