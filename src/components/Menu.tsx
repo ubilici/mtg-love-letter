@@ -1,8 +1,6 @@
-import { ALL_VALUES, CARD_DEFS } from "../game/cards";
-
 export function Menu({ onStart }: { onStart: () => void }) {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center gap-8 px-4 py-10">
+    <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center gap-6 px-4 py-10">
       <div className="flex flex-col items-center gap-3 text-center anim-rise">
         <div className="h-px w-16 bg-accent/60" />
         <p className="label text-accent">A Love Letter · Vess Archive</p>
@@ -16,36 +14,30 @@ export function Menu({ onStart }: { onStart: () => void }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 sm:gap-3 anim-fade">
-        {ALL_VALUES.map((v) => (
+      <div className="flex w-full max-w-lg flex-col items-center anim-fade">
+        <div className="relative w-full">
+          <img
+            src="/splash.png"
+            alt="Liliana Vess enthroned among her rivals"
+            className="block w-full select-none"
+            draggable={false}
+          />
           <div
-            key={v}
-            className="relative aspect-[63/88] w-20 overflow-hidden rounded-lg border border-border sm:w-24"
-            title={CARD_DEFS[v].description}
-          >
-            <img
-              src={CARD_DEFS[v].art}
-              alt={CARD_DEFS[v].mtgName}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-            <span className="absolute left-1 top-1 flex h-5 w-5 items-center justify-center rounded-full border border-accent/70 bg-black/70 text-[0.65rem] font-semibold text-accent">
-              {v}
-            </span>
-            <span className="absolute inset-x-0 bottom-0 line-clamp-2 px-1 pb-1 text-[0.55rem] leading-tight text-accent">
-              {CARD_DEFS[v].mtgName}
-            </span>
-          </div>
-        ))}
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, var(--background) 1%, transparent 28%), linear-gradient(to right, var(--background) 1%, transparent 24%), linear-gradient(to left, var(--background) 1%, transparent 24%), radial-gradient(ellipse at 50% 46%, transparent 42%, var(--background) 82%)",
+            }}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={onStart}
+          className="relative z-10 -mt-10 rounded-md bg-accent px-7 py-3 font-medium text-black shadow-lg transition hover:opacity-90 anim-pop"
+        >
+          Enter the Archive
+        </button>
       </div>
-
-      <button
-        type="button"
-        onClick={onStart}
-        className="rounded-md bg-accent px-7 py-3 font-medium text-black transition hover:opacity-90 anim-pop"
-      >
-        Enter the Archive
-      </button>
     </div>
   );
 }
