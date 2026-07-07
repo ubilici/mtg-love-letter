@@ -18,23 +18,27 @@ function describe(state: GameState, action: BotAction): string {
   switch (decision.card) {
     case 1:
       return decision.guess !== undefined && who
-        ? `${bot} names ${CARD_DEFS[decision.guess].role} against ${who}.`
-        : `${bot} plays the Zombie.`;
+        ? `${bot} names ${CARD_DEFS[decision.guess].mtgName} against ${who}.`
+        : `${bot} plays Zombie.`;
     case 2: {
       const poss =
         decision.targetId === 0 ? "your" : who ? `${who}'s` : "";
-      return poss ? `${bot} peeks at ${poss} hand.` : `${bot} plays the Priest.`;
+      return poss
+        ? `${bot} peeks at ${poss} hand.`
+        : `${bot} plays Dark Confidant.`;
     }
     case 3:
-      return who ? `${bot} duels ${who}.` : `${bot} plays the Baron.`;
+      return who ? `${bot} duels ${who}.` : `${bot} plays Deadly Assassin.`;
     case 4:
       return `${bot} takes cover behind the Grave Titan.`;
     case 5:
       return who
         ? `${bot} forces ${who} to discard.`
-        : `${bot} plays the Prince.`;
+        : `${bot} plays The Raven Man.`;
     case 6:
-      return who ? `${bot} trades hands with ${who}.` : `${bot} plays the King.`;
+      return who
+        ? `${bot} trades hands with ${who}.`
+        : `${bot} plays Nicol Bolas.`;
     case 7:
       return `${bot} discards Griselbrand.`;
     default:
