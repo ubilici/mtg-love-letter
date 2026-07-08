@@ -18,5 +18,5 @@ export default function App() {
     );
   }
 
-  return <GameTable ctrl={ctrl} />;
+  return <GameTable ctrl={ctrl} onExitToMenu={() => setStarted(false)} />;
 }

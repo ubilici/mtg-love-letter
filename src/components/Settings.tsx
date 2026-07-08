@@ -49,7 +49,15 @@ function Row({
   );
 }
 
-export function Settings({ onClose }: { onClose: () => void }) {
+export function Settings({
+  onClose,
+  onNewMatch,
+  onExitToMenu,
+}: {
+  onClose: () => void;
+  onNewMatch?: () => void;
+  onExitToMenu?: () => void;
+}) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -68,7 +76,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md rounded-xl border border-border bg-surface anim-rise"
+        className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-surface anim-rise"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
@@ -105,6 +113,35 @@ export function Settings({ onClose }: { onClose: () => void }) {
             onToggle={toggleStepMode}
           />
         </div>
+
+        {(onNewMatch || onExitToMenu) && (
+          <div className="flex flex-col gap-2 border-t border-border p-5">
+            {onNewMatch && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onNewMatch();
+                }}
+                className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-black transition hover:opacity-90"
+              >
+                New match
+              </button>
+            )}
+            {onExitToMenu && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onExitToMenu();
+                }}
+                className="rounded-md border border-border px-4 py-2 text-sm text-muted transition hover:border-accent hover:text-foreground"
+              >
+                Back to Main Menu
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
