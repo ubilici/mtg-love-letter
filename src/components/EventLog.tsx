@@ -10,6 +10,7 @@ const KIND_COLOR: Partial<Record<LogEntry["kind"], string>> = {
   swap: "text-amber-300",
   compare: "text-amber-300",
   protect: "text-emerald-300",
+  insight: "text-accent/70 italic",
 };
 
 export function EventLog({ log, className = "" }: { log: LogEntry[]; className?: string }) {

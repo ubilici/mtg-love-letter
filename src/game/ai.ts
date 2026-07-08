@@ -1,4 +1,4 @@
-import { ALL_VALUES, CARD_DEFS, type CardValue } from "./cards";
+import { ALL_VALUES, CARD_DEFS, cardName, type CardValue } from "./cards";
 import { forcedCountess, legalTargets, playableCards } from "./engine";
 import { getKnown } from "./knowledge";
 import type { GameState, PlayDecision, PlayerId } from "./types";
@@ -270,4 +270,121 @@ function threatLevel(
     attackerProb += dist.total > 0 ? dist.counts[v] / dist.total : 0;
   }
   return Math.min(1, attackerProb * opponents.length * 0.5);
+}
+
+export function explainBotMove(
+  state: GameState,
+  botId: PlayerId,
+  decision: PlayDecision,
+): string {
+  const bot = state.players[botId];
+  const name = bot.name;
+  const dist = unseenDistribution(state, botId);
+  const card = decision.card;
+  const kept = otherCard(bot.hand, card);
+  const keptStr =
+    kept !== null ? `${cardName(kept)} (${kept})` : "its remaining card";
+  const keptVal = kept ?? 0;
+  const targetId = decision.targetId;
+  const target = targetId !== undefined ? state.players[targetId] : undefined;
+  const tName = target
+    ? target.id === botId
+      ? "itself"
+      : target.id === 0
+        ? "you"
+        : target.name
+    : "";
+  const tPoss = target
+    ? target.id === botId
+      ? "its own"
+      : target.id === 0
+        ? "your"
+        : `${target.name}'s`
+    : "";
+  const pct = (x: number) => Math.round(x * 100);
+
+  const shielded = state.players
+    .filter((p) => !p.isOut && p.id !== botId && p.isProtected)
+    .map((p) => p.name);
+  const shieldNote = shielded.length
+    ? ` [shielded, skipped: ${shielded.join(", ")}]`
+    : "";
+
+  switch (card) {
+    case 1: {
+      if (!target) {
+        return `${name} plays Zombie, but every rival is shielded, so no effect${shieldNote}.`;
+      }
+      const guess = decision.guess ?? 2;
+      const known = getKnown(bot.knowledge, target.id);
+      if (known === guess) {
+        return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: it learned ${tName}'s card earlier and holds it with certainty (100%)${shieldNote}.`;
+      }
+      const p = probHolds(state, botId, target.id, guess, dist);
+      return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: estimated ~${pct(p)}% (${dist.counts[guess]} of ${dist.total} unseen cards are ${cardName(guess)}), the highest-probability guess across rivals${shieldNote}.`;
+    }
+    case 2: {
+      if (!target) {
+        return `${name} plays Dark Confidant with no valid target${shieldNote}.`;
+      }
+      return `${name} plays Dark Confidant on ${tName} to gather information: ${tPoss} hand is unknown${
+        state.deck.length > 4 ? `, and the round is young (${state.deck.length} left in deck)` : ""
+      }${shieldNote}.`;
+    }
+    case 3: {
+      if (!target) {
+        return `${name} plays Deadly Assassin with no valid target${shieldNote}.`;
+      }
+      const known = getKnown(bot.knowledge, target.id);
+      if (known !== undefined) {
+        const verdict =
+          known < keptVal
+            ? "a certain win"
+            : known > keptVal
+              ? "a certain loss (forced or best available)"
+              : "a tie";
+        return `${name} plays Deadly Assassin vs ${tName}, keeping ${keptStr}: sees ${tName} with ${cardName(known)} (${known}), so ${verdict}${shieldNote}.`;
+      }
+      const win = probLower(state, botId, target.id, keptVal, dist);
+      const lose = probHigher(state, botId, target.id, keptVal, dist);
+      return `${name} plays Deadly Assassin vs ${tName}, keeping ${keptStr}: win ~${pct(win)}%, lose ~${pct(lose)}%, else tie (from ${dist.total} unseen cards)${shieldNote}.`;
+    }
+    case 4: {
+      const threat = threatLevel(state, botId, dist);
+      return `${name} plays Grave Titan to shield itself: table threat ~${pct(threat)}% (attackers Guard/Baron/Prince are ${dist.counts[1] + dist.counts[3] + dist.counts[5]} of ${dist.total} unseen), protecting kept ${keptStr}.`;
+    }
+    case 5: {
+      if (!target) {
+        return `${name} plays The Raven Man with no valid target${shieldNote}.`;
+      }
+      if (target.id === botId) {
+        return `${name} plays The Raven Man on itself to discard ${keptStr} and redraw a stronger hand.`;
+      }
+      const known = getKnown(bot.knowledge, target.id);
+      if (known === 8) {
+        return `${name} plays The Raven Man on ${tName}: sees ${tName} with Liliana (8), forcing a fatal discard${shieldNote}.`;
+      }
+      const ev = expectedValue(state, botId, target.id, dist);
+      return `${name} plays The Raven Man on ${tName}: their expected hand ~${ev.toFixed(1)} (strongest rival), forcing a discard${shieldNote}.`;
+    }
+    case 6: {
+      if (!target) {
+        return `${name} plays Nicol Bolas with no valid target${shieldNote}.`;
+      }
+      const ev = expectedValue(state, botId, target.id, dist);
+      return `${name} plays Nicol Bolas to swap with ${tName}: trades ${keptStr} for their hand (expected ~${ev.toFixed(1)}, net ~${(ev - keptVal).toFixed(1)})${shieldNote}.`;
+    }
+    case 7: {
+      const forced = bot.hand.includes(6) || bot.hand.includes(5);
+      if (forced) {
+        const other = bot.hand.includes(6)
+          ? "Nicol Bolas (King)"
+          : "The Raven Man (Prince)";
+        return `${name} discards Griselbrand: forced by the Countess rule while also holding ${other}.`;
+      }
+      return `${name} plays Griselbrand: a safe no-effect play, keeping ${keptStr} concealed.`;
+    }
+    default:
+      return `${name} plays ${cardName(card)}.`;
+  }
 }

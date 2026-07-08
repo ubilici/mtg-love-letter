@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { decideBotMove } from "../game/ai";
+import { decideBotMove, explainBotMove } from "../game/ai";
 import {
   beginNextRound,
   createMatch,
@@ -13,6 +13,7 @@ import type {
 } from "../game/types";
 import { randomSeed } from "../game/rng";
 import { playSound } from "./sound";
+import { isInsight } from "./settings";
 
 const BOT_NAMES = ["You", "Sorin", "Chandra", "Jace"];
 
@@ -55,8 +56,27 @@ export function useGameController() {
 
   const play = useCallback((decision: PlayDecision) => {
     const prev = stateRef.current;
-    const next = playCard(prev, decision);
+    const actorId = prev.currentPlayerIndex;
+    const actorIsBot = prev.players[actorId]?.isBot ?? false;
+    let next = playCard(prev, decision);
     playActionSounds(prev, next);
+    if (actorIsBot && isInsight()) {
+      const text = explainBotMove(prev, actorId, decision);
+      next = {
+        ...next,
+        log: [
+          ...next.log,
+          {
+            id: next.logCounter,
+            round: next.round,
+            actor: actorId,
+            kind: "insight",
+            text,
+          },
+        ],
+        logCounter: next.logCounter + 1,
+      };
+    }
     if (next.lastReveal && next.lastReveal.viewerId === 0) {
       setReveal(next.lastReveal);
     }

@@ -38,7 +38,8 @@ export interface LogEntry {
     | "protect"
     | "favor"
     | "roundWin"
-    | "matchWin";
+    | "matchWin"
+    | "insight";
   text: string;
 }
 
