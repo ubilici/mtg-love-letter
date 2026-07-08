@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Grimoire } from "./Grimoire";
+import { playSound } from "../lib/sound";
 
 export function Menu({ onStart }: { onStart: () => void }) {
   const [showGrimoire, setShowGrimoire] = useState(false);
@@ -46,7 +47,10 @@ export function Menu({ onStart }: { onStart: () => void }) {
 
       <button
         type="button"
-        onClick={() => setShowGrimoire(true)}
+        onClick={() => {
+          playSound("ui_click");
+          setShowGrimoire(true);
+        }}
         className="rounded-md border border-border px-4 py-2 text-sm text-muted transition hover:border-accent hover:text-foreground anim-fade"
       >
         Open the Grimoire

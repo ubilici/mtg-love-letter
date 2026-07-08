@@ -12,6 +12,7 @@ import type {
   PlayerId,
 } from "../game/types";
 import { randomSeed } from "../game/rng";
+import { playSound } from "./sound";
 
 const BOT_NAMES = ["You", "Sorin", "Chandra", "Jace"];
 
@@ -23,6 +24,25 @@ export interface BotAction {
   decision: PlayDecision;
 }
 
+function playActionSounds(prev: GameState, next: GameState): void {
+  const newEntries = next.log.slice(prev.log.length);
+  const guardPlayed = newEntries.some((e) => e.kind === "play" && e.value === 1);
+  const eliminated = newEntries.some((e) => e.kind === "eliminate");
+  if (guardPlayed && eliminated) playSound("guard_hit");
+  else playSound("card_play");
+
+  if (prev.phase !== "roundOver" && next.phase === "roundOver") {
+    playSound("favor");
+  }
+  if (
+    prev.phase !== "matchOver" &&
+    next.phase === "matchOver" &&
+    next.matchWinnerId === 0
+  ) {
+    playSound("match_win");
+  }
+}
+
 export function useGameController() {
   const [state, setState] = useState<GameState>(() =>
     createMatch(BOT_NAMES, randomSeed()),
@@ -30,23 +50,27 @@ export function useGameController() {
   const [reveal, setReveal] = useState<PendingReveal | null>(null);
   const [announce, setAnnounce] = useState<BotAction | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   const play = useCallback((decision: PlayDecision) => {
-    setState((s) => {
-      const next = playCard(s, decision);
-      if (next.lastReveal && next.lastReveal.viewerId === 0) {
-        setReveal(next.lastReveal);
-      }
-      return next;
-    });
+    const prev = stateRef.current;
+    const next = playCard(prev, decision);
+    playActionSounds(prev, next);
+    if (next.lastReveal && next.lastReveal.viewerId === 0) {
+      setReveal(next.lastReveal);
+    }
+    setState(next);
   }, []);
 
   const nextRound = useCallback(() => {
+    playSound("ui_click");
     setAnnounce(null);
     setState((s) => beginNextRound(s));
   }, []);
 
   const newMatch = useCallback(() => {
+    playSound("ui_click");
     setReveal(null);
     setAnnounce(null);
     setState(createMatch(BOT_NAMES, randomSeed()));

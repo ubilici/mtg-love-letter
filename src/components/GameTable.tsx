@@ -10,6 +10,40 @@ import { ActionPrompt } from "./ActionPrompt";
 import { BotActionBanner } from "./BotActionBanner";
 import { Grimoire } from "./Grimoire";
 import { RevealToast } from "./RevealToast";
+import { playSound, toggleMuted, useMuted } from "../lib/sound";
+
+function MuteButton() {
+  const muted = useMuted();
+  return (
+    <button
+      type="button"
+      onClick={toggleMuted}
+      aria-label={muted ? "Unmute" : "Mute"}
+      title={muted ? "Unmute" : "Mute"}
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border text-muted transition hover:border-accent hover:text-foreground"
+    >
+      <svg
+        viewBox="0 0 20 20"
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M4 8 H7 L11 5 V15 L7 12 H4 Z" fill="currentColor" stroke="none" />
+        {muted ? (
+          <path d="M14 8 L18 12 M18 8 L14 12" />
+        ) : (
+          <>
+            <path d="M13.5 8 A3 3 0 0 1 13.5 12" />
+            <path d="M15.5 6.5 A5.5 5.5 0 0 1 15.5 13.5" />
+          </>
+        )}
+      </svg>
+    </button>
+  );
+}
 import { RoundBanner } from "./RoundBanner";
 import { MatchOverScreen } from "./MatchOverScreen";
 
@@ -107,13 +141,17 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
           </span>
           <span className="label shrink-0 text-muted">Round {state.round}</span>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <span className="hidden text-xs text-muted sm:inline">
             First to {state.tokensToWin} favors
           </span>
+          <MuteButton />
           <button
             type="button"
-            onClick={() => setShowGrimoire(true)}
+            onClick={() => {
+              playSound("ui_click");
+              setShowGrimoire(true);
+            }}
             className="rounded-md border border-border px-3 py-1.5 text-xs text-muted transition hover:border-accent hover:text-foreground"
           >
             Grimoire
@@ -193,7 +231,10 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
 
             <button
               type="button"
-              onClick={() => setShowLog(true)}
+              onClick={() => {
+                playSound("ui_click");
+                setShowLog(true);
+              }}
               className="rounded-md border border-border px-4 py-1.5 text-xs text-muted transition hover:border-accent hover:text-foreground lg:hidden"
             >
               Chronicle
