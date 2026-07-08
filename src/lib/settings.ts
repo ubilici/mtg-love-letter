@@ -1,17 +1,43 @@
 import { useEffect, useState } from "react";
 
-const STORAGE_KEY = "ll_insight";
+const INSIGHT_KEY = "ll_insight";
+const STEP_KEY = "ll_step";
 
-function readInsight(): boolean {
+function read(key: string): boolean {
   try {
-    return localStorage.getItem(STORAGE_KEY) === "1";
+    return localStorage.getItem(key) === "1";
   } catch {
     return false;
   }
 }
 
-let insight = readInsight();
+function write(key: string, value: boolean): void {
+  try {
+    localStorage.setItem(key, value ? "1" : "0");
+  } catch {
+    // ignore
+  }
+}
+
+let insight = read(INSIGHT_KEY);
+let stepMode = read(STEP_KEY);
 const listeners = new Set<() => void>();
+
+function notify(): void {
+  listeners.forEach((l) => l());
+}
+
+function useSetting(get: () => boolean): boolean {
+  const [value, setValue] = useState(get);
+  useEffect(() => {
+    const listener = () => setValue(get());
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }, [get]);
+  return value;
+}
 
 export function isInsight(): boolean {
   return insight;
@@ -19,22 +45,24 @@ export function isInsight(): boolean {
 
 export function toggleInsight(): void {
   insight = !insight;
-  try {
-    localStorage.setItem(STORAGE_KEY, insight ? "1" : "0");
-  } catch {
-    // ignore
-  }
-  listeners.forEach((l) => l());
+  write(INSIGHT_KEY, insight);
+  notify();
 }
 
 export function useInsight(): boolean {
-  const [value, setValue] = useState(insight);
-  useEffect(() => {
-    const listener = () => setValue(insight);
-    listeners.add(listener);
-    return () => {
-      listeners.delete(listener);
-    };
-  }, []);
-  return value;
+  return useSetting(isInsight);
+}
+
+export function isStepMode(): boolean {
+  return stepMode;
+}
+
+export function toggleStepMode(): void {
+  stepMode = !stepMode;
+  write(STEP_KEY, stepMode);
+  notify();
+}
+
+export function useStepMode(): boolean {
+  return useSetting(isStepMode);
 }

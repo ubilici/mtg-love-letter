@@ -13,7 +13,7 @@ import type {
 } from "../game/types";
 import { randomSeed } from "../game/rng";
 import { playSound } from "./sound";
-import { isInsight } from "./settings";
+import { isInsight, useStepMode } from "./settings";
 
 const BOT_NAMES = ["You", "Sorin", "Chandra", "Jace"];
 
@@ -53,6 +53,9 @@ export function useGameController() {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stateRef = useRef(state);
   stateRef.current = state;
+  const announceRef = useRef(announce);
+  announceRef.current = announce;
+  const stepMode = useStepMode();
 
   const play = useCallback((decision: PlayDecision) => {
     const prev = stateRef.current;
@@ -98,6 +101,13 @@ export function useGameController() {
 
   const dismissReveal = useCallback(() => setReveal(null), []);
 
+  const continueBotTurn = useCallback(() => {
+    const action = announceRef.current;
+    if (!action) return;
+    setAnnounce(null);
+    play(action.decision);
+  }, [play]);
+
   const isBotTurn =
     state.phase === "awaitingPlay" &&
     state.players[state.currentPlayerIndex].isBot;
@@ -128,7 +138,7 @@ export function useGameController() {
           return s;
         });
       }, THINK_MS);
-    } else {
+    } else if (!stepMode) {
       timer.current = setTimeout(() => {
         const action = announce;
         setAnnounce(null);
@@ -142,7 +152,7 @@ export function useGameController() {
         timer.current = null;
       }
     };
-  }, [state, reveal, announce, isBotTurn, play]);
+  }, [state, reveal, announce, isBotTurn, stepMode, play]);
 
   const isHumanActable =
     state.phase === "awaitingPlay" &&
@@ -150,11 +160,15 @@ export function useGameController() {
     !reveal &&
     !announce;
 
+  const awaitingContinue = stepMode && announce !== null && !reveal;
+
   return {
     state,
     reveal,
     dismissReveal,
     announce,
+    awaitingContinue,
+    continueBotTurn,
     play,
     nextRound,
     newMatch,

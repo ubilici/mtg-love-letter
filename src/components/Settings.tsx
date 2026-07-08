@@ -1,6 +1,11 @@
 import { useEffect } from "react";
 import { toggleMuted, useMuted } from "../lib/sound";
-import { toggleInsight, useInsight } from "../lib/settings";
+import {
+  toggleInsight,
+  toggleStepMode,
+  useInsight,
+  useStepMode,
+} from "../lib/settings";
 
 function Switch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   return (
@@ -55,6 +60,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
 
   const sfxOn = !useMuted();
   const insight = useInsight();
+  const stepMode = useStepMode();
 
   return (
     <div
@@ -91,6 +97,12 @@ export function Settings({ onClose }: { onClose: () => void }) {
             desc="Log each bot's reasoning and probabilities in the Chronicle."
             on={insight}
             onToggle={toggleInsight}
+          />
+          <Row
+            title="Step through bot turns"
+            desc="Pause on each bot's move and press Continue to advance."
+            on={stepMode}
+            onToggle={toggleStepMode}
           />
         </div>
       </div>

@@ -98,6 +98,8 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
     reveal,
     dismissReveal,
     announce,
+    awaitingContinue,
+    continueBotTurn,
     play,
     nextRound,
     newMatch,
@@ -284,6 +286,18 @@ export function GameTable({ ctrl }: { ctrl: Controller }) {
       )}
 
       {announce && <BotActionBanner state={state} action={announce} />}
+
+      {awaitingContinue && (
+        <div className="fixed inset-x-0 top-44 z-40 flex justify-center px-4">
+          <button
+            type="button"
+            onClick={continueBotTurn}
+            className="rounded-md bg-accent px-6 py-2 text-sm font-medium text-black shadow-lg transition hover:opacity-90 anim-pop"
+          >
+            Continue ▶
+          </button>
+        </div>
+      )}
 
       {reveal && (
         <RevealToast state={state} reveal={reveal} onDismiss={dismissReveal} />
