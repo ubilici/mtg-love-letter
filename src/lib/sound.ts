@@ -50,15 +50,66 @@ export function toggleMuted(): void {
   listeners.forEach((l) => l());
 }
 
+const KEYS = Object.keys(SRC) as SoundKey[];
+
+let ctx: AudioContext | null = null;
+const rawPromises: Partial<Record<SoundKey, Promise<ArrayBuffer>>> = {};
+const decoded: Partial<Record<SoundKey, Promise<AudioBuffer>>> = {};
+
+function fetchRaw(key: SoundKey): Promise<ArrayBuffer> {
+  if (!rawPromises[key]) {
+    rawPromises[key] = fetch(SRC[key]).then((r) => r.arrayBuffer());
+  }
+  return rawPromises[key]!;
+}
+
+// Warm the HTTP cache as soon as this module loads (no AudioContext needed).
+if (typeof window !== "undefined") {
+  for (const key of KEYS) void fetchRaw(key).catch(() => {});
+}
+
+function getContext(): AudioContext | null {
+  if (ctx) return ctx;
+  try {
+    const Ctor =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+    if (!Ctor) return null;
+    ctx = new Ctor();
+    // Decode everything up front so later plays fire with zero latency.
+    for (const key of KEYS) void getBuffer(ctx, key).catch(() => {});
+  } catch {
+    ctx = null;
+  }
+  return ctx;
+}
+
+function getBuffer(context: AudioContext, key: SoundKey): Promise<AudioBuffer> {
+  if (!decoded[key]) {
+    decoded[key] = fetchRaw(key).then((arr) =>
+      context.decodeAudioData(arr.slice(0)),
+    );
+  }
+  return decoded[key]!;
+}
+
 export function playSound(key: SoundKey): void {
   if (muted) return;
-  try {
-    const audio = new Audio(SRC[key]);
-    audio.volume = VOLUME[key];
-    void audio.play().catch(() => {});
-  } catch {
-    // ignore
-  }
+  const context = getContext();
+  if (!context) return;
+  if (context.state === "suspended") void context.resume();
+  getBuffer(context, key)
+    .then((buffer) => {
+      if (muted) return;
+      const source = context.createBufferSource();
+      source.buffer = buffer;
+      const gain = context.createGain();
+      gain.gain.value = VOLUME[key];
+      source.connect(gain).connect(context.destination);
+      source.start();
+    })
+    .catch(() => {});
 }
 
 export function useMuted(): boolean {
