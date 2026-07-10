@@ -110,7 +110,7 @@ export function GameTable({
     state.currentPlayerIndex === 0 ? "Your turn" : `${currentName} is scheming…`;
 
   return (
-    <div className="flex h-screen flex-col overflow-x-hidden">
+    <div className="flex h-dvh flex-col overflow-hidden">
       <header className="flex items-center justify-between gap-2 border-b border-border px-3 py-3 sm:px-4">
         <div className="flex min-w-0 items-baseline gap-2 sm:gap-3">
           <span className="truncate text-base font-semibold tracking-tight text-glow-soft sm:text-lg">
