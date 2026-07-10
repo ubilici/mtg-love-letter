@@ -45,9 +45,9 @@ First player to 4 favors wins the match.
 
 ## Credits & assets
 
-- **Card art** (`public/cards/`, `card_assets/`): temporary placeholders generated
-  with Google Gemini. The intent is to replace them with original artwork
-  commissioned from real artists down the line.
+- **Card art** (`public/cards/`): temporary placeholders generated with Google
+  Gemini. The intent is to replace them with original artwork commissioned from
+  real artists down the line.
 - **Sound effects** (`public/sfx/`): from [Kenney](https://kenney.nl) (CC0).
 
 ## Disclaimer
