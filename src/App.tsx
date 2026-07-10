@@ -10,8 +10,8 @@ export default function App() {
   if (!started) {
     return (
       <Menu
-        onStart={() => {
-          ctrl.newMatch();
+        onStart={(playerCount) => {
+          ctrl.startMatch(playerCount);
           setStarted(true);
         }}
       />

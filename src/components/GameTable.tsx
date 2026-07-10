@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CARD_DEFS, type CardValue } from "../game/cards";
 import { legalTargets, playableCards } from "../game/engine";
 import type { useGameController } from "../lib/useGameController";
-import { CardBack } from "./Card";
+import { Card, CardBack } from "./Card";
 import { PlayerSeat } from "./PlayerSeat";
 import { Hand } from "./Hand";
 import { EventLog } from "./EventLog";
@@ -20,9 +20,11 @@ type Controller = ReturnType<typeof useGameController>;
 function CenterPod({
   deckCount,
   turnLabel,
+  faceUp,
 }: {
   deckCount: number;
   turnLabel: string;
+  faceUp: CardValue[];
 }) {
   return (
     <>
@@ -42,19 +44,38 @@ function CenterPod({
             <span className="label text-muted">Banished</span>
           </div>
         </div>
+        {faceUp.length > 0 && (
+          <div className="flex flex-col items-center gap-1">
+            <div className="flex items-end gap-1.5">
+              {faceUp.map((c, i) => (
+                <Card key={i} value={c} size="sm" dimmed />
+              ))}
+            </div>
+            <span className="label text-muted">Revealed</span>
+          </div>
+        )}
         <p className="rounded-full border border-border bg-black/40 px-3 py-1 text-xs text-accent text-glow-soft">
           {turnLabel}
         </p>
       </div>
 
-      <div className="flex items-center gap-2 lg:hidden">
-        <span className="rounded-full border border-border bg-black/40 px-3 py-1 text-xs text-accent text-glow-soft">
-          {turnLabel}
-        </span>
-        <span className="flex items-center gap-1 rounded-full border border-border bg-black/40 px-2.5 py-1 text-xs text-muted">
-          <span className="font-semibold text-accent">{deckCount}</span>
-          in deck
-        </span>
+      <div className="flex flex-col items-center gap-2 lg:hidden">
+        <div className="flex items-center gap-2">
+          <span className="rounded-full border border-border bg-black/40 px-3 py-1 text-xs text-accent text-glow-soft">
+            {turnLabel}
+          </span>
+          <span className="flex items-center gap-1 rounded-full border border-border bg-black/40 px-2.5 py-1 text-xs text-muted">
+            <span className="font-semibold text-accent">{deckCount}</span>
+            in deck
+          </span>
+        </div>
+        {faceUp.length > 0 && (
+          <div className="flex items-end gap-1.5">
+            {faceUp.map((c, i) => (
+              <Card key={i} value={c} size="xs" dimmed />
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
@@ -147,18 +168,22 @@ export function GameTable({
 
       <main className="flex min-h-0 flex-1">
         <section className="relative flex min-h-0 flex-1 flex-col items-center gap-3 overflow-y-auto p-3">
-          <div className="grid w-full grid-cols-3 gap-1.5 lg:flex lg:flex-wrap lg:items-start lg:justify-center lg:gap-2">
-            {[1, 2, 3].map((i) => (
+          <div className="flex w-full flex-wrap items-start justify-center gap-1.5 lg:gap-2">
+            {state.players.slice(1).map((p) => (
               <PlayerSeat
-                key={i}
-                player={state.players[i]}
-                isCurrent={state.currentPlayerIndex === i}
+                key={p.id}
+                player={p}
+                isCurrent={state.currentPlayerIndex === p.id}
                 tokensToWin={state.tokensToWin}
               />
             ))}
           </div>
 
-          <CenterPod deckCount={state.deck.length} turnLabel={turnLabel} />
+          <CenterPod
+            deckCount={state.deck.length}
+            turnLabel={turnLabel}
+            faceUp={state.faceUpCards}
+          />
 
           <div className="mt-auto mb-12 flex w-full flex-col items-center gap-2 pt-0 lg:mb-0 lg:mt-0 lg:gap-3 lg:pt-2">
             <div

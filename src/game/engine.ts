@@ -18,14 +18,18 @@ import type {
   PlayerId,
 } from "./types";
 
-const PLAYER_COUNT = 4;
+export function tokensForPlayers(count: number): number {
+  if (count <= 2) return 7;
+  if (count === 3) return 5;
+  return 4;
+}
 
 export function createMatch(
   names: string[],
   seed: number,
   tokensToWin = 4,
 ): GameState {
-  const players: Player[] = names.slice(0, PLAYER_COUNT).map((name, i) => ({
+  const players: Player[] = names.map((name, i) => ({
     id: i,
     name,
     isBot: i !== 0,
@@ -99,7 +103,8 @@ export function startRound(state: GameState, starterId: number): GameState {
   const deck = shuffle(buildDeck(), rng);
 
   next.setAsideCard = deck.shift() ?? null;
-  next.faceUpCards = [];
+  next.faceUpCards =
+    next.players.length === 2 ? deck.splice(0, 3).filter((c) => c !== undefined) : [];
 
   for (const p of next.players) {
     p.hand = [];
@@ -121,7 +126,10 @@ export function startRound(state: GameState, starterId: number): GameState {
   addLog(next, {
     actor: null,
     kind: "info",
-    text: `Round ${next.round} begins. A card is banished from the game.`,
+    text:
+      next.faceUpCards.length > 0
+        ? `Round ${next.round} begins. One card is banished and three are revealed.`
+        : `Round ${next.round} begins. A card is banished from the game.`,
   });
 
   return beginTurn(next);
@@ -135,9 +143,10 @@ function beginTurn(state: GameState): GameState {
   if (alive.length <= 1) return endRound(next);
   if (next.deck.length === 0) return endRound(next);
 
+  const count = next.players.length;
   let guard = 0;
-  while (next.players[idx].isOut && guard < PLAYER_COUNT * 2) {
-    idx = (idx + 1) % PLAYER_COUNT;
+  while (next.players[idx].isOut && guard < count * 2) {
+    idx = (idx + 1) % count;
     guard++;
   }
   next.currentPlayerIndex = idx;
@@ -420,7 +429,8 @@ function advanceTurn(state: GameState): GameState {
   if (alive.length <= 1 || state.deck.length === 0) {
     return endRound(state);
   }
-  state.currentPlayerIndex = (state.currentPlayerIndex + 1) % PLAYER_COUNT;
+  state.currentPlayerIndex =
+    (state.currentPlayerIndex + 1) % state.players.length;
   return beginTurn(state);
 }
 

@@ -2,10 +2,18 @@ import { useState } from "react";
 import { Grimoire } from "./Grimoire";
 import { Settings } from "./Settings";
 import { playSound } from "../lib/sound";
+import { tokensForPlayers } from "../game/engine";
 
-export function Menu({ onStart }: { onStart: () => void }) {
+const MODES: { count: number; rivals: number; note?: string }[] = [
+  { count: 2, rivals: 1, note: "3 cards revealed each round" },
+  { count: 3, rivals: 2 },
+  { count: 4, rivals: 3 },
+];
+
+export function Menu({ onStart }: { onStart: (playerCount: number) => void }) {
   const [showGrimoire, setShowGrimoire] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showSelect, setShowSelect] = useState(false);
 
   return (
     <div className="relative mx-auto flex h-dvh w-full max-w-3xl flex-col items-center justify-center overflow-hidden px-4">
@@ -41,7 +49,10 @@ export function Menu({ onStart }: { onStart: () => void }) {
       <div className="relative z-10 -mt-12 flex flex-col items-center gap-3 anim-fade">
         <button
           type="button"
-          onClick={onStart}
+          onClick={() => {
+            playSound("ui_click");
+            setShowSelect(true);
+          }}
           className="rounded-md bg-accent px-7 py-3 font-medium text-black shadow-lg transition hover:opacity-90"
         >
           Enter the Archive
@@ -72,6 +83,57 @@ export function Menu({ onStart }: { onStart: () => void }) {
         All artwork is AI-generated placeholder. I hope to commission original
         art from a real artist.
       </p>
+
+      {showSelect && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 anim-fade"
+          onClick={() => setShowSelect(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-xl border border-border bg-surface anim-rise"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
+              <div>
+                <p className="label text-accent">New match</p>
+                <h2 className="text-lg font-semibold tracking-tight">
+                  Choose your table
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSelect(false)}
+                className="rounded-full border border-border px-3 py-1.5 text-sm text-muted transition hover:border-accent hover:text-foreground"
+              >
+                Close
+              </button>
+            </div>
+            <div className="flex flex-col gap-2 p-5">
+              {MODES.map((m) => (
+                <button
+                  key={m.count}
+                  type="button"
+                  onClick={() => onStart(m.count)}
+                  className="flex items-center justify-between gap-4 rounded-lg border border-border bg-black/30 p-4 text-left transition hover:border-accent"
+                >
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold">
+                      {m.count} players
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted">
+                      You + {m.rivals} rival{m.rivals > 1 ? "s" : ""}
+                      {m.note ? `, ${m.note}` : ""}
+                    </div>
+                  </div>
+                  <span className="shrink-0 text-xs text-accent">
+                    first to {tokensForPlayers(m.count)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showGrimoire && <Grimoire onClose={() => setShowGrimoire(false)} />}
       {showSettings && <Settings onClose={() => setShowSettings(false)} />}

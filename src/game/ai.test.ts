@@ -9,6 +9,7 @@ import {
   playableCards,
   playCard,
   beginNextRound,
+  tokensForPlayers,
 } from "./engine";
 import { createKnowledge } from "./knowledge";
 import type { GameState, Player } from "./types";
@@ -84,6 +85,33 @@ describe("bot decisions", () => {
       }
       expect(s.phase).toBe("matchOver");
       expect(s.matchWinnerId).not.toBeNull();
+    }
+  });
+
+  it("completes 2- and 3-player matches with only legal moves", () => {
+    for (const count of [2, 3]) {
+      const names = ["You", "B1", "B2", "B3"].slice(0, count);
+      for (let seed = 0; seed < 15; seed++) {
+        let s = createMatch(names, seed, tokensForPlayers(count));
+        let steps = 0;
+        while (s.phase !== "matchOver" && steps < 4000) {
+          if (s.phase === "roundOver") {
+            s = beginNextRound(s);
+            continue;
+          }
+          const actor = s.currentPlayerIndex;
+          const decision = decideBotMove(s, actor);
+          expect(playableCards(s.players[actor].hand)).toContain(decision.card);
+          if (decision.targetId !== undefined) {
+            expect(legalTargets(s, actor, decision.card)).toContain(
+              decision.targetId,
+            );
+          }
+          s = playCard(s, decision);
+          steps++;
+        }
+        expect(s.phase).toBe("matchOver");
+      }
     }
   });
 

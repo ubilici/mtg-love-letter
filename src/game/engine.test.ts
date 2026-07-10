@@ -7,6 +7,7 @@ import {
   playableCards,
   playCard,
   beginNextRound,
+  tokensForPlayers,
 } from "./engine";
 import { createKnowledge } from "./knowledge";
 import type { GameState, Player } from "./types";
@@ -67,6 +68,32 @@ describe("deck", () => {
     expect(counts[6]).toBe(1);
     expect(counts[7]).toBe(1);
     expect(counts[8]).toBe(1);
+  });
+});
+
+describe("player counts", () => {
+  it("tokensForPlayers uses official thresholds", () => {
+    expect(tokensForPlayers(2)).toBe(7);
+    expect(tokensForPlayers(3)).toBe(5);
+    expect(tokensForPlayers(4)).toBe(4);
+  });
+
+  it("2-player match banishes 1 and reveals 3 face-up", () => {
+    const s = createMatch(["You", "Sorin"], 7, tokensForPlayers(2));
+    expect(s.players.length).toBe(2);
+    expect(s.tokensToWin).toBe(7);
+    expect(s.setAsideCard).not.toBeNull();
+    expect(s.faceUpCards.length).toBe(3);
+    // 16 - 1 setaside - 3 faceup - 2 dealt - 1 drawn = 9
+    expect(s.deck.length).toBe(9);
+  });
+
+  it("3-player match has no face-up cards", () => {
+    const s = createMatch(["You", "Sorin", "Chandra"], 3, tokensForPlayers(3));
+    expect(s.players.length).toBe(3);
+    expect(s.faceUpCards.length).toBe(0);
+    // 16 - 1 setaside - 3 dealt - 1 drawn = 11
+    expect(s.deck.length).toBe(11);
   });
 });
 

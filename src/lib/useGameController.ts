@@ -4,6 +4,7 @@ import {
   beginNextRound,
   createMatch,
   playCard,
+  tokensForPlayers,
 } from "../game/engine";
 import type {
   GameState,
@@ -15,7 +16,15 @@ import { randomSeed } from "../game/rng";
 import { playSound } from "./sound";
 import { isInsight, useStepMode } from "./settings";
 
-const BOT_NAMES = ["You", "Sorin", "Chandra", "Jace"];
+const ALL_NAMES = ["You", "Sorin", "Chandra", "Jace"];
+
+function namesFor(count: number): string[] {
+  return ALL_NAMES.slice(0, Math.max(2, Math.min(4, count)));
+}
+
+function createMatchFor(count: number): GameState {
+  return createMatch(namesFor(count), randomSeed(), tokensForPlayers(count));
+}
 
 const THINK_MS = 800;
 const ANNOUNCE_MS = 1700;
@@ -45,9 +54,7 @@ function playActionSounds(prev: GameState, next: GameState): void {
 }
 
 export function useGameController() {
-  const [state, setState] = useState<GameState>(() =>
-    createMatch(BOT_NAMES, randomSeed()),
-  );
+  const [state, setState] = useState<GameState>(() => createMatchFor(4));
   const [reveal, setReveal] = useState<PendingReveal | null>(null);
   const [announce, setAnnounce] = useState<BotAction | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -55,6 +62,7 @@ export function useGameController() {
   stateRef.current = state;
   const announceRef = useRef(announce);
   announceRef.current = announce;
+  const playerCountRef = useRef(4);
   const stepMode = useStepMode();
 
   const play = useCallback((decision: PlayDecision) => {
@@ -92,12 +100,17 @@ export function useGameController() {
     setState((s) => beginNextRound(s));
   }, []);
 
-  const newMatch = useCallback(() => {
+  const startMatch = useCallback((playerCount: number) => {
     playSound("ui_click");
+    playerCountRef.current = playerCount;
     setReveal(null);
     setAnnounce(null);
-    setState(createMatch(BOT_NAMES, randomSeed()));
+    setState(createMatchFor(playerCount));
   }, []);
+
+  const newMatch = useCallback(() => {
+    startMatch(playerCountRef.current);
+  }, [startMatch]);
 
   const dismissReveal = useCallback(() => setReveal(null), []);
 
@@ -171,6 +184,7 @@ export function useGameController() {
     continueBotTurn,
     play,
     nextRound,
+    startMatch,
     newMatch,
     isHumanActable,
   };
