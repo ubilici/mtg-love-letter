@@ -2,7 +2,9 @@
 
 A browser version of the board game **Love Letter**, reskinned in the Magic:
 The Gathering universe around **Liliana Vess**. Play solo against three
-deductive bots. Built to match the visual theme of the vess-archive site.
+deductive bots. Built to match the visual theme of the VessArchive site.
+
+**▶ Play it here: [vessarchive.com/play](https://vessarchive.com/play)**
 
 ## Stack
 
@@ -40,3 +42,22 @@ First player to 4 favors wins the match.
 - `src/game/`: pure, framework-free game engine, rules, and bot AI (unit tested)
 - `src/lib/useGameController.ts`: React hook driving the turn loop and bot pacing
 - `src/components/`: themed UI (table, cards, prompts, log, screens)
+
+## Credits & assets
+
+- **Card art** (`public/cards/`, `card_assets/`): temporary placeholders generated
+  with Google Gemini. The intent is to replace them with original artwork
+  commissioned from real artists down the line.
+- **Sound effects** (`public/sfx/`): from [Kenney](https://kenney.nl) (CC0).
+
+## Disclaimer
+
+This is a non-commercial fan project. *Love Letter* is a game designed by Seiji
+Kanai. *Magic: The Gathering* and its characters (Liliana Vess, Nicol Bolas,
+Griselbrand, and others) are trademarks and property of Wizards of the Coast.
+This project is not affiliated with or endorsed by either.
+
+## License
+
+The **source code** is released under the [MIT License](LICENSE). This does not
+extend to the third-party assets and intellectual property referenced above.
