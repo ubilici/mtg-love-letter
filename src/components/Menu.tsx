@@ -8,7 +8,7 @@ export function Menu({ onStart }: { onStart: () => void }) {
   const [showSettings, setShowSettings] = useState(false);
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col items-center justify-center gap-6 px-4 py-10">
+    <div className="relative mx-auto flex min-h-dvh w-full max-w-3xl flex-col items-center justify-center gap-6 px-4 py-10 pb-14">
       <div className="flex flex-col items-center gap-3 text-center anim-rise">
         <div className="h-px w-16 bg-accent/60" />
         <p className="label text-accent">Love Letter, Reanimated</p>
@@ -68,6 +68,11 @@ export function Menu({ onStart }: { onStart: () => void }) {
       >
         Settings
       </button>
+
+      <p className="absolute inset-x-0 bottom-3 px-6 text-center text-[0.7rem] leading-relaxed text-muted/60">
+        All artwork is AI-generated placeholder. I hope to commission original
+        art from a real artist.
+      </p>
 
       {showGrimoire && <Grimoire onClose={() => setShowGrimoire(false)} />}
       {showSettings && <Settings onClose={() => setShowSettings(false)} />}
