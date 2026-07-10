@@ -95,4 +95,37 @@ describe("bot decisions", () => {
     expect(d.targetId).toBe(1);
     expect(d.guess).toBe(5);
   });
+
+  it("targets the highest-favor rival when nothing is known", () => {
+    const s = mkState([[1, 1], [3], [2], [5]]);
+    s.players[1].favor = 0;
+    s.players[2].favor = 3;
+    s.players[3].favor = 1;
+    const d = decideBotMove(s, 0);
+    expect(d.card).toBe(1);
+    expect(d.targetId).toBe(2);
+  });
+
+  it("prefers a known lethal Guard over the favor leader", () => {
+    const s = mkState([[1, 1], [5], [2], [3]]);
+    s.players[3].favor = 3;
+    s.players[0].knowledge.known[1] = 5;
+    const d = decideBotMove(s, 0);
+    expect(d.card).toBe(1);
+    expect(d.targetId).toBe(1);
+    expect(d.guess).toBe(5);
+  });
+
+  it("does not always target the lowest-id player on ties", () => {
+    const chosen = new Set<number>();
+    for (let round = 1; round <= 16; round++) {
+      const s = mkState([[3], [1, 1], [2], [5]], {
+        currentPlayerIndex: 1,
+        round,
+      });
+      const d = decideBotMove(s, 1);
+      if (d.targetId !== undefined) chosen.add(d.targetId);
+    }
+    expect(chosen.size).toBeGreaterThan(1);
+  });
 });

@@ -8,6 +8,53 @@ interface Distribution {
   total: number;
 }
 
+const W_ELIM = 1;
+const W_FAVOR = 0.15;
+const W_RISK = 0.8;
+const W_UTIL_PRINCE = 0.6;
+const W_UTIL_PRIEST = 1;
+
+function favorPressure(state: GameState, playerId: PlayerId): number {
+  return state.players[playerId].favor / (state.tokensToWin || 1);
+}
+
+function targetJitter(
+  botId: PlayerId,
+  targetId: PlayerId,
+  card: CardValue,
+  state: GameState,
+): number {
+  let h =
+    (Math.imul(botId + 1, 73856093) ^
+      Math.imul(targetId + 1, 19349663) ^
+      Math.imul(card, 83492791) ^
+      Math.imul(state.round + 1, 2246822519) ^
+      Math.imul(state.deck.length + 1, 3266489917)) >>>
+    0;
+  h = Math.imul(h ^ (h >>> 15), h | 1);
+  h ^= h + Math.imul(h ^ (h >>> 7), h | 61);
+  return (((h ^ (h >>> 14)) >>> 0) / 4294967296) * 0.02;
+}
+
+function guardBestGuess(
+  state: GameState,
+  botId: PlayerId,
+  targetId: PlayerId,
+  dist: Distribution,
+): { guess: CardValue; p: number } {
+  let guess: CardValue = 2;
+  let p = -1;
+  for (const v of ALL_VALUES) {
+    if (v === 1) continue;
+    const pv = probHolds(state, botId, targetId, v, dist);
+    if (pv > p) {
+      p = pv;
+      guess = v;
+    }
+  }
+  return { guess, p };
+}
+
 function unseenDistribution(state: GameState, botId: PlayerId): Distribution {
   const counts: Record<number, number> = {};
   for (const v of ALL_VALUES) counts[v] = CARD_DEFS[v].count;
@@ -137,13 +184,16 @@ export function decideBotMove(
     if (card === 1) {
       let best: { targetId: PlayerId; guess: CardValue; p: number } | null =
         null;
+      let bestScore = -Infinity;
       for (const t of targets) {
-        for (const v of ALL_VALUES) {
-          if (v === 1) continue;
-          const p = probHolds(state, botId, t, v as CardValue, dist);
-          if (!best || p > best.p) {
-            best = { targetId: t, guess: v as CardValue, p };
-          }
+        const g = guardBestGuess(state, botId, t, dist);
+        const s =
+          W_ELIM * g.p +
+          W_FAVOR * favorPressure(state, t) +
+          targetJitter(botId, t, card, state);
+        if (s > bestScore) {
+          bestScore = s;
+          best = { targetId: t, guess: g.guess, p: g.p };
         }
       }
       if (best) {
@@ -158,14 +208,28 @@ export function decideBotMove(
     }
 
     if (card === 2) {
-      const t = pickBy(targets, (p) =>
-        getKnown(bot.knowledge, p) === undefined ? 1 : 0,
-      );
+      let best: { targetId: PlayerId; util: number } | null = null;
+      let bestScore = -Infinity;
+      for (const t of targets) {
+        const util = getKnown(bot.knowledge, t) === undefined ? 1 : 0;
+        const s =
+          W_UTIL_PRIEST * util +
+          W_FAVOR * favorPressure(state, t) +
+          targetJitter(botId, t, card, state);
+        if (s > bestScore) {
+          bestScore = s;
+          best = { targetId: t, util };
+        }
+      }
       const infoBonus = state.deck.length > 4 ? 1.2 : 0.4;
-      candidates.push({
-        decision: { card, targetId: t ?? undefined },
-        score: t !== null ? 1.0 + infoBonus : 0.1,
-      });
+      if (best) {
+        candidates.push({
+          decision: { card, targetId: best.targetId },
+          score: best.util > 0 ? 1.0 + infoBonus : 0.4,
+        });
+      } else {
+        candidates.push({ decision: { card }, score: 0.1 });
+      }
       continue;
     }
 
@@ -173,10 +237,17 @@ export function decideBotMove(
       const myVal = keptCard ?? 0;
       let best: { targetId: PlayerId; win: number; lose: number } | null =
         null;
+      let bestScore = -Infinity;
       for (const t of targets) {
         const win = probLower(state, botId, t, myVal, dist);
         const lose = probHigher(state, botId, t, myVal, dist);
-        if (!best || win - lose > best.win - best.lose) {
+        const s =
+          W_ELIM * win -
+          W_RISK * lose +
+          W_FAVOR * favorPressure(state, t) +
+          targetJitter(botId, t, card, state);
+        if (s > bestScore) {
+          bestScore = s;
           best = { targetId: t, win, lose };
         }
       }
@@ -192,19 +263,28 @@ export function decideBotMove(
     }
 
     if (card === 5) {
-      let best: { targetId: PlayerId; score: number } | null = null;
+      let best: { targetId: PlayerId; cardScore: number } | null = null;
+      let bestScore = -Infinity;
       for (const t of targets) {
         if (t === botId) continue;
         const known = getKnown(bot.knowledge, t);
-        let s: number;
-        if (known === 8) s = 8;
-        else s = 0.5 + expectedValue(state, botId, t, dist) * 0.5;
-        if (!best || s > best.score) best = { targetId: t, score: s };
+        const elim = probHolds(state, botId, t, 8, dist);
+        const ev = expectedValue(state, botId, t, dist);
+        const s =
+          W_ELIM * elim +
+          W_UTIL_PRINCE * (ev / 8) +
+          W_FAVOR * favorPressure(state, t) +
+          targetJitter(botId, t, card, state);
+        const cardScore = known === 8 ? 8 : 0.5 + ev * 0.5;
+        if (s > bestScore) {
+          bestScore = s;
+          best = { targetId: t, cardScore };
+        }
       }
       if (best) {
         candidates.push({
           decision: { card, targetId: best.targetId },
-          score: best.score,
+          score: best.cardScore,
         });
       } else if (targets.some((t) => t === botId)) {
         candidates.push({ decision: { card, targetId: botId }, score: 0.2 });
@@ -217,9 +297,17 @@ export function decideBotMove(
     if (card === 6) {
       const myVal = keptCard ?? 0;
       let best: { targetId: PlayerId; gain: number } | null = null;
+      let bestScore = -Infinity;
       for (const t of targets) {
         const gain = expectedValue(state, botId, t, dist) - myVal;
-        if (!best || gain > best.gain) best = { targetId: t, gain };
+        const s =
+          Math.max(0, gain) +
+          W_FAVOR * favorPressure(state, t) +
+          targetJitter(botId, t, card, state);
+        if (s > bestScore) {
+          bestScore = s;
+          best = { targetId: t, gain };
+        }
       }
       if (best) {
         candidates.push({
@@ -243,19 +331,6 @@ function otherCard(hand: CardValue[], played: CardValue): CardValue | null {
   const idx = hand.indexOf(played);
   const rest = hand.filter((_, i) => i !== idx);
   return rest[0] ?? null;
-}
-
-function pickBy<T>(items: T[], score: (item: T) => number): T | null {
-  let best: T | null = null;
-  let bestScore = -Infinity;
-  for (const it of items) {
-    const s = score(it);
-    if (s > bestScore) {
-      bestScore = s;
-      best = it;
-    }
-  }
-  return best;
 }
 
 function threatLevel(
@@ -302,6 +377,10 @@ export function explainBotMove(
         : `${target.name}'s`
     : "";
   const pct = (x: number) => Math.round(x * 100);
+  const favorTag =
+    target && target.id !== botId && target.favor > 0
+      ? ` — favor leader (${tName}: ${target.favor})`
+      : "";
 
   const shielded = state.players
     .filter((p) => !p.isOut && p.id !== botId && p.isProtected)
@@ -321,7 +400,7 @@ export function explainBotMove(
         return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: it learned ${tName}'s card earlier and holds it with certainty (100%)${shieldNote}.`;
       }
       const p = probHolds(state, botId, target.id, guess, dist);
-      return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: estimated ~${pct(p)}% (${dist.counts[guess]} of ${dist.total} unseen cards are ${cardName(guess)}), the highest-probability guess across rivals${shieldNote}.`;
+      return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: estimated ~${pct(p)}% (${dist.counts[guess]} of ${dist.total} unseen cards are ${cardName(guess)}), the highest-probability guess across rivals${favorTag}${shieldNote}.`;
     }
     case 2: {
       if (!target) {
@@ -347,7 +426,7 @@ export function explainBotMove(
       }
       const win = probLower(state, botId, target.id, keptVal, dist);
       const lose = probHigher(state, botId, target.id, keptVal, dist);
-      return `${name} plays Deadly Assassin vs ${tName}, keeping ${keptStr}: win ~${pct(win)}%, lose ~${pct(lose)}%, else tie (from ${dist.total} unseen cards)${shieldNote}.`;
+      return `${name} plays Deadly Assassin vs ${tName}, keeping ${keptStr}: win ~${pct(win)}%, lose ~${pct(lose)}%, else tie (from ${dist.total} unseen cards)${favorTag}${shieldNote}.`;
     }
     case 4: {
       const threat = threatLevel(state, botId, dist);
@@ -365,14 +444,14 @@ export function explainBotMove(
         return `${name} plays The Raven Man on ${tName}: sees ${tName} with Liliana (8), forcing a fatal discard${shieldNote}.`;
       }
       const ev = expectedValue(state, botId, target.id, dist);
-      return `${name} plays The Raven Man on ${tName}: their expected hand ~${ev.toFixed(1)} (strongest rival), forcing a discard${shieldNote}.`;
+      return `${name} plays The Raven Man on ${tName}: their expected hand ~${ev.toFixed(1)}, forcing a discard${favorTag}${shieldNote}.`;
     }
     case 6: {
       if (!target) {
         return `${name} plays Nicol Bolas with no valid target${shieldNote}.`;
       }
       const ev = expectedValue(state, botId, target.id, dist);
-      return `${name} plays Nicol Bolas to swap with ${tName}: trades ${keptStr} for their hand (expected ~${ev.toFixed(1)}, net ~${(ev - keptVal).toFixed(1)})${shieldNote}.`;
+      return `${name} plays Nicol Bolas to swap with ${tName}: trades ${keptStr} for their hand (expected ~${ev.toFixed(1)}, net ~${(ev - keptVal).toFixed(1)})${favorTag}${shieldNote}.`;
     }
     case 7: {
       const forced = bot.hand.includes(6) || bot.hand.includes(5);
