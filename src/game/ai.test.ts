@@ -115,6 +115,31 @@ describe("bot decisions", () => {
     }
   });
 
+  it("plays only legal moves and completes at every difficulty", () => {
+    for (const difficulty of ["easy", "medium", "hard"] as const) {
+      for (let seed = 0; seed < 10; seed++) {
+        let s = createMatch(["You", "B1", "B2", "B3"], seed, tokensForPlayers(4));
+        let steps = 0;
+        while (s.phase !== "matchOver" && steps < 4000) {
+          if (s.phase === "roundOver") {
+            s = beginNextRound(s);
+            continue;
+          }
+          const actor = s.currentPlayerIndex;
+          const d = decideBotMove(s, actor, difficulty);
+          expect(playableCards(s.players[actor].hand)).toContain(d.card);
+          if (d.targetId !== undefined) {
+            expect(legalTargets(s, actor, d.card)).toContain(d.targetId);
+          }
+          if (d.guess !== undefined) expect(d.guess).not.toBe(1);
+          s = playCard(s, d);
+          steps++;
+        }
+        expect(s.phase).toBe("matchOver");
+      }
+    }
+  });
+
   it("uses a known card to make a lethal Guard guess", () => {
     const s = mkState([[1, 4], [5], [2], [3]]);
     s.players[0].knowledge.known[1] = 5;

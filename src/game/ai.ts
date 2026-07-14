@@ -138,14 +138,36 @@ function probHigher(
   return p / dist.total;
 }
 
+export type Difficulty = "easy" | "medium" | "hard";
+
 interface Candidate {
   decision: PlayDecision;
   score: number;
 }
 
+function randomMove(
+  state: GameState,
+  botId: PlayerId,
+  playable: CardValue[],
+): PlayDecision {
+  const card = playable[Math.floor(Math.random() * playable.length)];
+  const def = CARD_DEFS[card];
+  if (!def.needsTarget) return { card };
+  const targets = legalTargets(state, botId, card);
+  if (targets.length === 0) return { card };
+  const targetId = targets[Math.floor(Math.random() * targets.length)];
+  if (def.needsGuess) {
+    const guesses = ALL_VALUES.filter((v) => v !== 1);
+    const guess = guesses[Math.floor(Math.random() * guesses.length)];
+    return { card, targetId, guess };
+  }
+  return { card, targetId };
+}
+
 export function decideBotMove(
   state: GameState,
   botId: PlayerId,
+  difficulty: Difficulty = "hard",
 ): PlayDecision {
   const bot = state.players[botId];
   const hand = bot.hand;
@@ -154,6 +176,9 @@ export function decideBotMove(
 
   const legal = playableCards(hand).filter((c) => c !== 8);
   const playable = legal.length > 0 ? legal : playableCards(hand);
+
+  if (difficulty === "easy") return randomMove(state, botId, playable);
+
   const dist = unseenDistribution(state, botId);
 
   const candidates: Candidate[] = [];
@@ -324,6 +349,15 @@ export function decideBotMove(
   }
 
   candidates.sort((a, b) => b.score - a.score);
+
+  if (
+    difficulty === "medium" &&
+    candidates.length > 1 &&
+    Math.random() < 0.4
+  ) {
+    return candidates[Math.floor(Math.random() * candidates.length)].decision;
+  }
+
   return candidates[0]?.decision ?? { card: playable[0] };
 }
 

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import type { Difficulty } from "../game/ai";
 
 const INSIGHT_KEY = "ll_insight";
 const STEP_KEY = "ll_step";
+const DIFFICULTY_KEY = "ll_difficulty";
 
 function read(key: string): boolean {
   try {
@@ -65,4 +67,42 @@ export function toggleStepMode(): void {
 
 export function useStepMode(): boolean {
   return useSetting(isStepMode);
+}
+
+function readDifficulty(): Difficulty {
+  try {
+    const v = localStorage.getItem(DIFFICULTY_KEY);
+    if (v === "easy" || v === "medium" || v === "hard") return v;
+  } catch {
+    // ignore
+  }
+  return "medium";
+}
+
+let difficulty: Difficulty = readDifficulty();
+
+export function getDifficulty(): Difficulty {
+  return difficulty;
+}
+
+export function setDifficulty(value: Difficulty): void {
+  difficulty = value;
+  try {
+    localStorage.setItem(DIFFICULTY_KEY, value);
+  } catch {
+    // ignore
+  }
+  notify();
+}
+
+export function useDifficulty(): Difficulty {
+  const [value, setValue] = useState(difficulty);
+  useEffect(() => {
+    const listener = () => setValue(difficulty);
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }, []);
+  return value;
 }

@@ -14,7 +14,7 @@ import type {
 } from "../game/types";
 import { randomSeed } from "../game/rng";
 import { playSound } from "./sound";
-import { isInsight, useStepMode } from "./settings";
+import { getDifficulty, isInsight, useStepMode } from "./settings";
 
 const ALL_NAMES = ["You", "Sorin", "Chandra", "Jace"];
 
@@ -146,7 +146,10 @@ export function useGameController() {
             s.players[s.currentPlayerIndex].isBot
           ) {
             const botId = s.currentPlayerIndex;
-            setAnnounce({ botId, decision: decideBotMove(s, botId) });
+            setAnnounce({
+              botId,
+              decision: decideBotMove(s, botId, getDifficulty()),
+            });
           }
           return s;
         });

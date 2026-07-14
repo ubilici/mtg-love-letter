@@ -1,11 +1,48 @@
 import { useEffect } from "react";
+import type { Difficulty } from "../game/ai";
 import { toggleMuted, useMuted } from "../lib/sound";
 import {
+  setDifficulty,
   toggleInsight,
   toggleStepMode,
+  useDifficulty,
   useInsight,
   useStepMode,
 } from "../lib/settings";
+
+const DIFFICULTIES: { value: Difficulty; label: string }[] = [
+  { value: "easy", label: "Easy" },
+  { value: "medium", label: "Medium" },
+  { value: "hard", label: "Hard" },
+];
+
+function DifficultyRow() {
+  const current = useDifficulty();
+  return (
+    <div className="rounded-lg border border-border bg-black/30 p-4">
+      <div className="text-sm font-semibold">Bot difficulty</div>
+      <div className="mt-0.5 text-xs text-muted">
+        How sharply your rivals play.
+      </div>
+      <div className="mt-3 flex gap-1 rounded-md border border-border p-1">
+        {DIFFICULTIES.map((d) => (
+          <button
+            key={d.value}
+            type="button"
+            onClick={() => setDifficulty(d.value)}
+            className={`flex-1 rounded px-3 py-1.5 text-sm transition ${
+              current === d.value
+                ? "bg-accent font-medium text-black"
+                : "text-muted hover:text-foreground"
+            }`}
+          >
+            {d.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function Switch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   return (
@@ -94,6 +131,7 @@ export function Settings({
         </div>
 
         <div className="flex flex-col gap-3 p-5">
+          <DifficultyRow />
           <Row
             title="Sound effects"
             desc="Card plays, guesses, favors, and victory."
