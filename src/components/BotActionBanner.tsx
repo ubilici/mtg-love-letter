@@ -56,7 +56,7 @@ export function BotActionBanner({
   const bot = state.players[action.botId];
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-1/2 z-40 flex -translate-y-1/2 justify-center px-4 lg:top-16 lg:translate-y-0">
+    <div className="pointer-events-none fixed inset-x-0 top-1/2 z-40 flex -translate-y-1/2 justify-center px-4">
       <div className="flex items-center gap-3 rounded-xl border border-accent/50 bg-surface/95 px-4 py-3 card-glow anim-pop">
         <Card value={action.decision.card} size="sm" />
         <div className="flex flex-col">

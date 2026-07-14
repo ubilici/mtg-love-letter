@@ -298,7 +298,7 @@ export function GameTable({
       {announce && <BotActionBanner state={state} action={announce} />}
 
       {awaitingContinue && (
-        <div className="fixed inset-x-0 top-1/2 z-40 flex translate-y-16 justify-center px-4 lg:top-44 lg:translate-y-0">
+        <div className="fixed inset-x-0 top-1/2 z-40 flex translate-y-16 justify-center px-4">
           <button
             type="button"
             onClick={continueBotTurn}
