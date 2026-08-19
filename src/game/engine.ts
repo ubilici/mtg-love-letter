@@ -136,30 +136,29 @@ export function startRound(state: GameState, starterId: number): GameState {
 }
 
 function beginTurn(state: GameState): GameState {
-  const next = state;
-  let idx = next.currentPlayerIndex;
+  let idx = state.currentPlayerIndex;
 
-  const alive = activePlayers(next);
-  if (alive.length <= 1) return endRound(next);
-  if (next.deck.length === 0) return endRound(next);
+  const alive = activePlayers(state);
+  if (alive.length <= 1) return endRound(state);
+  if (state.deck.length === 0) return endRound(state);
 
-  const count = next.players.length;
+  const count = state.players.length;
   let guard = 0;
-  while (next.players[idx].isOut && guard < count * 2) {
+  while (state.players[idx].isOut && guard < count * 2) {
     idx = (idx + 1) % count;
     guard++;
   }
-  next.currentPlayerIndex = idx;
+  state.currentPlayerIndex = idx;
 
-  const player = next.players[idx];
+  const player = state.players[idx];
   player.isProtected = false;
 
-  const drawn = next.deck.shift();
-  if (drawn === undefined) return endRound(next);
+  const drawn = state.deck.shift();
+  if (drawn === undefined) return endRound(state);
   player.hand.push(drawn);
 
-  next.phase = "awaitingPlay";
-  return next;
+  state.phase = "awaitingPlay";
+  return state;
 }
 
 export function forcedCountess(hand: CardValue[]): boolean {
