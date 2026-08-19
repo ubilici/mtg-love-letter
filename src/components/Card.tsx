@@ -44,7 +44,13 @@ export function CardBack({
           >
             <path d="M20 3 C12 12 12 22 20 37 C28 22 28 12 20 3 Z" />
             <path d="M20 10 L20 30 M13 20 L27 20" />
-            <circle cx="20" cy="20" r="3.2" fill="var(--accent)" stroke="none" />
+            <circle
+              cx="20"
+              cy="20"
+              r="3.2"
+              fill="var(--accent)"
+              stroke="none"
+            />
           </g>
         </svg>
       </div>
@@ -76,9 +82,7 @@ export function Card({
       disabled={!interactive}
       onClick={onClick}
       className={`group relative ${SIZES[size]} aspect-[63/88] shrink-0 overflow-hidden rounded-lg border text-left transition ${
-        selected
-          ? "border-accent card-glow -translate-y-2"
-          : "border-border"
+        selected ? "border-accent card-glow -translate-y-2" : "border-border"
       } ${
         interactive
           ? "cursor-pointer hover:-translate-y-1 hover:border-accent"

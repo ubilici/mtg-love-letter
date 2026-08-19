@@ -119,7 +119,9 @@ export function Settings({
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div>
             <p className="label text-accent">Settings</p>
-            <h2 className="text-lg font-semibold tracking-tight">Preferences</h2>
+            <h2 className="text-lg font-semibold tracking-tight">
+              Preferences
+            </h2>
           </div>
           <button
             type="button"

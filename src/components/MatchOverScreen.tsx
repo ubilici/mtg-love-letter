@@ -23,7 +23,9 @@ export function MatchOverScreen({
         />
         <p className="label text-accent">The letter is delivered</p>
         <h2 className="mt-2 text-3xl font-semibold tracking-tight text-glow">
-          {winner ? `${winner.name} ${winner.isBot ? "wins" : "win"}` : "Match over"}
+          {winner
+            ? `${winner.name} ${winner.isBot ? "wins" : "win"}`
+            : "Match over"}
         </h2>
         <p className="mt-2 text-sm text-muted">
           {humanWon

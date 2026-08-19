@@ -23,9 +23,7 @@ export function RoundBanner({
         <h2 className="mt-1 text-2xl font-semibold tracking-tight text-glow-soft">
           {title}
         </h2>
-        <p className="mt-1 text-sm text-muted">
-          They earn a favor of Liliana.
-        </p>
+        <p className="mt-1 text-sm text-muted">They earn a favor of Liliana.</p>
 
         <div className="mt-5 flex flex-wrap items-start justify-center gap-4">
           {survivors.map((p) => (

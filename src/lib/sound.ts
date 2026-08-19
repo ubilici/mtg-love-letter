@@ -1,11 +1,7 @@
 import { boolPersist, createStore, useStore } from "./store";
 
 export type SoundKey =
-  | "card_play"
-  | "guard_hit"
-  | "favor"
-  | "match_win"
-  | "ui_click";
+  "card_play" | "guard_hit" | "favor" | "match_win" | "ui_click";
 
 const SRC: Record<SoundKey, string> = {
   card_play: "/sfx/card_play.ogg",

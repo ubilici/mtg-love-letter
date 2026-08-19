@@ -39,9 +39,7 @@ export function Hand({
         })}
       </div>
       {forced && (
-        <p className="label text-accent">
-          Griselbrand must be discarded
-        </p>
+        <p className="label text-accent">Griselbrand must be discarded</p>
       )}
     </div>
   );

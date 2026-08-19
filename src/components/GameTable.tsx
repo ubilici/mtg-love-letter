@@ -128,7 +128,9 @@ export function GameTable({
 
   const currentName = state.players[state.currentPlayerIndex].name;
   const turnLabel =
-    state.currentPlayerIndex === 0 ? "Your turn" : `${currentName} is scheming…`;
+    state.currentPlayerIndex === 0
+      ? "Your turn"
+      : `${currentName} is scheming…`;
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden">

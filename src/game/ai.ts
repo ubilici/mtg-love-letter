@@ -6,7 +6,7 @@ import type { GameState, PlayDecision, PlayerId } from "./types";
 
 function botRng(state: GameState, botId: PlayerId): Rng {
   const seed =
-    (Math.imul((state.seed >>> 0) || 1, 2654435761) ^
+    (Math.imul(state.seed >>> 0 || 1, 2654435761) ^
       Math.imul(state.round + 1, 40503) ^
       Math.imul(state.deck.length + 1, 19349663) ^
       Math.imul(botId + 1, 83492791) ^
@@ -319,8 +319,7 @@ export function decideBotMove(
 
     if (card === 3) {
       const myVal = keptCard ?? 0;
-      let best: { targetId: PlayerId; win: number; lose: number } | null =
-        null;
+      let best: { targetId: PlayerId; win: number; lose: number } | null = null;
       let bestScore = -Infinity;
       for (const t of targets) {
         const win = probLower(state, botId, t, myVal, dist);
@@ -504,7 +503,9 @@ export function explainBotMove(
       const p = probHolds(state, botId, target.id, guess, dist);
       const optimal = guardBestGuess(state, botId, target.id, dist).guess;
       const optimalNote =
-        optimal === guess ? ", the highest-probability guess across rivals" : "";
+        optimal === guess
+          ? ", the highest-probability guess across rivals"
+          : "";
       return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: estimated ~${pct(p)}% (${dist.counts[guess]} of ${dist.total} unseen cards are ${cardName(guess)})${optimalNote}${favorTag}${shieldNote}.`;
     }
     case 2: {
@@ -512,7 +513,9 @@ export function explainBotMove(
         return `${name} plays Dark Confidant with no valid target${shieldNote}.`;
       }
       return `${name} plays Dark Confidant on ${tName} to gather information: ${tPoss} hand is unknown${
-        state.deck.length > 4 ? `, and the round is young (${state.deck.length} left in deck)` : ""
+        state.deck.length > 4
+          ? `, and the round is young (${state.deck.length} left in deck)`
+          : ""
       }${shieldNote}.`;
     }
     case 3: {

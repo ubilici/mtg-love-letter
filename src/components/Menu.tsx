@@ -24,9 +24,9 @@ export function Menu({ onStart }: { onStart: (playerCount: number) => void }) {
           Liliana's Favor
         </h1>
         <p className="max-w-lg text-sm text-muted">
-          Three rivals. One necromancer's favor. Read your foes, play your
-          card, and outlast the graveyard. The first to four favors wins
-          Liliana's heart.
+          Three rivals. One necromancer's favor. Read your foes, play your card,
+          and outlast the graveyard. The first to four favors wins Liliana's
+          heart.
         </p>
       </div>
 
@@ -140,4 +140,3 @@ export function Menu({ onStart }: { onStart: (playerCount: number) => void }) {
     </div>
   );
 }
-

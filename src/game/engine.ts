@@ -1,14 +1,5 @@
-import {
-  buildDeck,
-  CARD_DEFS,
-  cardName,
-  type CardValue,
-} from "./cards";
-import {
-  cloneKnowledge,
-  createKnowledge,
-  setKnown,
-} from "./knowledge";
+import { buildDeck, CARD_DEFS, cardName, type CardValue } from "./cards";
+import { cloneKnowledge, createKnowledge, setKnown } from "./knowledge";
 import { createRng, shuffle, type Rng } from "./rng";
 import type {
   GameState,
@@ -78,10 +69,7 @@ function cloneState(state: GameState): GameState {
   };
 }
 
-function addLog(
-  state: GameState,
-  entry: Omit<LogEntry, "id" | "round">,
-): void {
+function addLog(state: GameState, entry: Omit<LogEntry, "id" | "round">): void {
   state.log.push({ ...entry, id: state.logCounter++, round: state.round });
 }
 
@@ -104,7 +92,9 @@ export function startRound(state: GameState, starterId: number): GameState {
 
   next.setAsideCard = deck.shift() ?? null;
   next.faceUpCards =
-    next.players.length === 2 ? deck.splice(0, 3).filter((c) => c !== undefined) : [];
+    next.players.length === 2
+      ? deck.splice(0, 3).filter((c) => c !== undefined)
+      : [];
 
   for (const p of next.players) {
     p.hand = [];
@@ -443,8 +433,7 @@ function endRound(state: GameState): GameState {
     const maxVal = Math.max(...alive.map((p) => p.hand[0] ?? 0));
     let contenders = alive.filter((p) => (p.hand[0] ?? 0) === maxVal);
     if (contenders.length > 1) {
-      const discSum = (p: Player) =>
-        p.discards.reduce((s, c) => s + c, 0);
+      const discSum = (p: Player) => p.discards.reduce((s, c) => s + c, 0);
       const maxSum = Math.max(...contenders.map(discSum));
       contenders = contenders.filter((p) => discSum(p) === maxSum);
     }

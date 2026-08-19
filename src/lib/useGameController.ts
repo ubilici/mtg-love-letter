@@ -36,7 +36,9 @@ export interface BotAction {
 
 function playActionSounds(prev: GameState, next: GameState): void {
   const newEntries = next.log.slice(prev.log.length);
-  const guardPlayed = newEntries.some((e) => e.kind === "play" && e.value === 1);
+  const guardPlayed = newEntries.some(
+    (e) => e.kind === "play" && e.value === 1,
+  );
   const eliminated = newEntries.some((e) => e.kind === "eliminate");
   if (guardPlayed && eliminated) playSound("guard_hit");
   else playSound("card_play");

@@ -13,7 +13,13 @@ const KIND_COLOR: Partial<Record<LogEntry["kind"], string>> = {
   insight: "text-accent/70 italic",
 };
 
-export function EventLog({ log, className = "" }: { log: LogEntry[]; className?: string }) {
+export function EventLog({
+  log,
+  className = "",
+}: {
+  log: LogEntry[];
+  className?: string;
+}) {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
