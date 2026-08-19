@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ALL_VALUES, CARD_DEFS, cardName, type CardValue } from "../game/cards";
 import type { GameState, PlayDecision, PlayerId } from "../game/types";
 import { legalTargets } from "../game/engine";
+import { useEscape } from "../lib/useEscape";
 
 interface ActionPromptProps {
   state: GameState;
@@ -24,13 +25,7 @@ export function ActionPrompt({
   );
   const [guess, setGuess] = useState<CardValue | null>(null);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onCancel();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onCancel]);
+  useEscape(onCancel);
 
   const needsTarget = def.needsTarget && targets.length > 0;
   const needsGuess = def.needsGuess;

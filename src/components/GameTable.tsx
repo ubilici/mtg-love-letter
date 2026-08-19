@@ -14,6 +14,7 @@ import { RevealToast } from "./RevealToast";
 import { playSound } from "../lib/sound";
 import { RoundBanner } from "./RoundBanner";
 import { MatchOverScreen } from "./MatchOverScreen";
+import { useEscape } from "../lib/useEscape";
 
 type Controller = ReturnType<typeof useGameController>;
 
@@ -108,6 +109,8 @@ export function GameTable({
   useEffect(() => {
     if (!isHumanActable) setSelected(null);
   }, [isHumanActable]);
+
+  useEscape(() => setShowLog(false));
 
   const human = state.players[0];
   const playable = playableCards(human.hand);

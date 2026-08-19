@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import type { Difficulty } from "../game/ai";
 import { toggleMuted, useMuted } from "../lib/sound";
 import {
@@ -9,6 +8,7 @@ import {
   useInsight,
   useStepMode,
 } from "../lib/settings";
+import { useEscape } from "../lib/useEscape";
 
 const DIFFICULTIES: { value: Difficulty; label: string }[] = [
   { value: "easy", label: "Easy" },
@@ -95,13 +95,7 @@ export function Settings({
   onNewMatch?: () => void;
   onExitToMenu?: () => void;
 }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  useEscape(onClose);
 
   const sfxOn = !useMuted();
   const insight = useInsight();
