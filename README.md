@@ -25,16 +25,16 @@ npm run test      # engine + bot unit tests (Vitest)
 
 The 8 Love Letter roles map onto the MTG art in `public/cards/`:
 
-| Value | Role     | Card            | Effect                                        |
-| ----- | -------- | --------------- | --------------------------------------------- |
-| 1     | Guard    | Zombie          | Name a card 2-8; a matching rival is cast out |
-| 2     | Priest   | Dark Confidant  | Look at a rival's hand                        |
-| 3     | Baron    | Deadly Assassin | Compare hands; the lesser is cast out         |
-| 4     | Handmaid | Grave Titan     | Untargetable until your next turn             |
-| 5     | Prince   | The Raven Man   | A player discards and redraws                 |
-| 6     | King     | Nicol Bolas     | Trade hands with a rival                      |
-| 7     | Countess | Griselbrand     | Must discard if held with King or Prince      |
-| 8     | Princess | Liliana Vess    | Discard her and you are cast out              |
+| Value | Role     | Card           | Effect                                        |
+| ----- | -------- | -------------- | --------------------------------------------- |
+| 1     | Guard    | Zombie         | Name a card 2-8; a matching rival is cast out |
+| 2     | Priest   | Dark Confidant | Look at a rival's hand                        |
+| 3     | Baron    | Royal Assassin | Compare hands; the lesser is cast out         |
+| 4     | Handmaid | Grave Titan    | Untargetable until your next turn             |
+| 5     | Prince   | The Raven Man  | A player discards and redraws                 |
+| 6     | King     | Nicol Bolas    | Trade hands with a rival                      |
+| 7     | Countess | Griselbrand    | Must discard if held with King or Prince      |
+| 8     | Princess | Liliana Vess   | Discard her and you are cast out              |
 
 ## Tables
 

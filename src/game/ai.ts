@@ -520,7 +520,7 @@ export function explainBotMove(
     }
     case 3: {
       if (!target) {
-        return `${name} plays Deadly Assassin with no valid target${shieldNote}.`;
+        return `${name} plays Royal Assassin with no valid target${shieldNote}.`;
       }
       const known = getKnown(bot.knowledge, target.id);
       if (known !== undefined) {
@@ -530,11 +530,11 @@ export function explainBotMove(
             : known > keptVal
               ? "a certain loss (forced or best available)"
               : "a tie";
-        return `${name} plays Deadly Assassin vs ${tName}, keeping ${keptStr}: sees ${tName} with ${cardName(known)} (${known}), so ${verdict}${shieldNote}.`;
+        return `${name} plays Royal Assassin vs ${tName}, keeping ${keptStr}: sees ${tName} with ${cardName(known)} (${known}), so ${verdict}${shieldNote}.`;
       }
       const win = probLower(state, botId, target.id, keptVal, dist);
       const lose = probHigher(state, botId, target.id, keptVal, dist);
-      return `${name} plays Deadly Assassin vs ${tName}, keeping ${keptStr}: win ~${pct(win)}%, lose ~${pct(lose)}%, else tie (from ${dist.total} unseen cards)${favorTag}${shieldNote}.`;
+      return `${name} plays Royal Assassin vs ${tName}, keeping ${keptStr}: win ~${pct(win)}%, lose ~${pct(lose)}%, else tie (from ${dist.total} unseen cards)${favorTag}${shieldNote}.`;
     }
     case 4: {
       const threat = threatLevel(state, botId, dist);

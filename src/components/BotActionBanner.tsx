@@ -31,7 +31,7 @@ function describe(state: GameState, action: BotAction): string {
         : `${bot} plays Dark Confidant.`;
     }
     case 3:
-      return who ? `${bot} duels ${who}.` : `${bot} plays Deadly Assassin.`;
+      return who ? `${bot} duels ${who}.` : `${bot} plays Royal Assassin.`;
     case 4:
       return `${bot} takes cover behind the Grave Titan.`;
     case 5:

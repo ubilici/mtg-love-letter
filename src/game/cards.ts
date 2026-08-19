@@ -52,7 +52,7 @@ export const CARD_DEFS: Record<CardValue, CardDef> = {
   3: {
     value: 3,
     role: "Baron",
-    mtgName: "Deadly Assassin",
+    mtgName: "Royal Assassin",
     art: "/cards/03_deadly_assassin.png",
     count: 2,
     needsTarget: true,
