@@ -502,7 +502,10 @@ export function explainBotMove(
         return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: it learned ${tName}'s card earlier and holds it with certainty (100%)${shieldNote}.`;
       }
       const p = probHolds(state, botId, target.id, guess, dist);
-      return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: estimated ~${pct(p)}% (${dist.counts[guess]} of ${dist.total} unseen cards are ${cardName(guess)}), the highest-probability guess across rivals${favorTag}${shieldNote}.`;
+      const optimal = guardBestGuess(state, botId, target.id, dist).guess;
+      const optimalNote =
+        optimal === guess ? ", the highest-probability guess across rivals" : "";
+      return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: estimated ~${pct(p)}% (${dist.counts[guess]} of ${dist.total} unseen cards are ${cardName(guess)})${optimalNote}${favorTag}${shieldNote}.`;
     }
     case 2: {
       if (!target) {
