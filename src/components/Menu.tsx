@@ -3,6 +3,7 @@ import { Grimoire } from "./Grimoire";
 import { Settings } from "./Settings";
 import { playSound } from "../lib/sound";
 import { tokensForPlayers } from "../game/engine";
+import { useEscape } from "../lib/useEscape";
 
 const MODES: { count: number; rivals: number; note?: string }[] = [
   { count: 2, rivals: 1, note: "3 cards revealed each round" },
@@ -15,6 +16,8 @@ export function Menu({ onStart }: { onStart: (playerCount: number) => void }) {
   const [showSettings, setShowSettings] = useState(false);
   const [showSelect, setShowSelect] = useState(false);
 
+  useEscape(() => setShowSelect(false));
+
   return (
     <div className="relative mx-auto flex h-dvh w-full max-w-3xl flex-col items-center justify-center overflow-hidden px-4">
       <div className="relative z-10 flex flex-col items-center gap-2 text-center anim-rise">
@@ -24,9 +27,9 @@ export function Menu({ onStart }: { onStart: (playerCount: number) => void }) {
           Liliana's Favor
         </h1>
         <p className="max-w-lg text-sm text-muted">
-          Three rivals. One necromancer's favor. Read your foes, play your
-          card, and outlast the graveyard. The first to four favors wins
-          Liliana's heart.
+          Three rivals. One necromancer's favor. Read your foes, play your card,
+          and outlast the graveyard. The first to four favors wins Liliana's
+          heart.
         </p>
       </div>
 
@@ -140,4 +143,3 @@ export function Menu({ onStart }: { onStart: (playerCount: number) => void }) {
     </div>
   );
 }
-

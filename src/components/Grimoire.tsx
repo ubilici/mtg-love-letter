@@ -1,14 +1,8 @@
-import { useEffect } from "react";
 import { ALL_VALUES, CARD_DEFS, TOTAL_CARDS } from "../game/cards";
+import { useEscape } from "../lib/useEscape";
 
 export function Grimoire({ onClose }: { onClose: () => void }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  useEscape(onClose);
 
   return (
     <div

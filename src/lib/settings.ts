@@ -1,108 +1,53 @@
-import { useEffect, useState } from "react";
 import type { Difficulty } from "../game/ai";
+import { boolPersist, createStore, useStore, type Persist } from "./store";
 
 const INSIGHT_KEY = "ll_insight";
 const STEP_KEY = "ll_step";
 const DIFFICULTY_KEY = "ll_difficulty";
 
-function read(key: string): boolean {
-  try {
-    return localStorage.getItem(key) === "1";
-  } catch {
-    return false;
-  }
-}
+const insightStore = createStore(false, boolPersist(INSIGHT_KEY));
+const stepStore = createStore(false, boolPersist(STEP_KEY));
 
-function write(key: string, value: boolean): void {
-  try {
-    localStorage.setItem(key, value ? "1" : "0");
-  } catch {
-    // ignore
-  }
-}
-
-let insight = read(INSIGHT_KEY);
-let stepMode = read(STEP_KEY);
-const listeners = new Set<() => void>();
-
-function notify(): void {
-  listeners.forEach((l) => l());
-}
-
-function useSetting(get: () => boolean): boolean {
-  const [value, setValue] = useState(get);
-  useEffect(() => {
-    const listener = () => setValue(get());
-    listeners.add(listener);
-    return () => {
-      listeners.delete(listener);
-    };
-  }, [get]);
-  return value;
-}
+const difficultyPersist: Persist<Difficulty> = {
+  key: DIFFICULTY_KEY,
+  serialize: (v) => v,
+  deserialize: (raw) =>
+    raw === "easy" || raw === "medium" || raw === "hard" ? raw : "medium",
+};
+const difficultyStore = createStore<Difficulty>("medium", difficultyPersist);
 
 export function isInsight(): boolean {
-  return insight;
+  return insightStore.get();
 }
 
 export function toggleInsight(): void {
-  insight = !insight;
-  write(INSIGHT_KEY, insight);
-  notify();
+  insightStore.set(!insightStore.get());
 }
 
 export function useInsight(): boolean {
-  return useSetting(isInsight);
+  return useStore(insightStore);
 }
 
 export function isStepMode(): boolean {
-  return stepMode;
+  return stepStore.get();
 }
 
 export function toggleStepMode(): void {
-  stepMode = !stepMode;
-  write(STEP_KEY, stepMode);
-  notify();
+  stepStore.set(!stepStore.get());
 }
 
 export function useStepMode(): boolean {
-  return useSetting(isStepMode);
+  return useStore(stepStore);
 }
-
-function readDifficulty(): Difficulty {
-  try {
-    const v = localStorage.getItem(DIFFICULTY_KEY);
-    if (v === "easy" || v === "medium" || v === "hard") return v;
-  } catch {
-    // ignore
-  }
-  return "medium";
-}
-
-let difficulty: Difficulty = readDifficulty();
 
 export function getDifficulty(): Difficulty {
-  return difficulty;
+  return difficultyStore.get();
 }
 
 export function setDifficulty(value: Difficulty): void {
-  difficulty = value;
-  try {
-    localStorage.setItem(DIFFICULTY_KEY, value);
-  } catch {
-    // ignore
-  }
-  notify();
+  difficultyStore.set(value);
 }
 
 export function useDifficulty(): Difficulty {
-  const [value, setValue] = useState(difficulty);
-  useEffect(() => {
-    const listener = () => setValue(difficulty);
-    listeners.add(listener);
-    return () => {
-      listeners.delete(listener);
-    };
-  }, []);
-  return value;
+  return useStore(difficultyStore);
 }

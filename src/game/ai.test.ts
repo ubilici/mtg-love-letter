@@ -14,7 +14,11 @@ import {
 import { createKnowledge } from "./knowledge";
 import type { GameState, Player } from "./types";
 
-function mkPlayer(id: number, hand: CardValue[], over: Partial<Player> = {}): Player {
+function mkPlayer(
+  id: number,
+  hand: CardValue[],
+  over: Partial<Player> = {},
+): Player {
   return {
     id,
     name: `Bot ${id}`,
@@ -29,7 +33,10 @@ function mkPlayer(id: number, hand: CardValue[], over: Partial<Player> = {}): Pl
   };
 }
 
-function mkState(hands: CardValue[][], over: Partial<GameState> = {}): GameState {
+function mkState(
+  hands: CardValue[][],
+  over: Partial<GameState> = {},
+): GameState {
   return {
     players: hands.map((h, i) => mkPlayer(i, h)),
     deck: [6, 2, 4, 1, 3],
@@ -118,7 +125,11 @@ describe("bot decisions", () => {
   it("plays only legal moves and completes at every difficulty", () => {
     for (const difficulty of ["easy", "medium", "hard"] as const) {
       for (let seed = 0; seed < 10; seed++) {
-        let s = createMatch(["You", "B1", "B2", "B3"], seed, tokensForPlayers(4));
+        let s = createMatch(
+          ["You", "B1", "B2", "B3"],
+          seed,
+          tokensForPlayers(4),
+        );
         let steps = 0;
         while (s.phase !== "matchOver" && steps < 4000) {
           if (s.phase === "roundOver") {
@@ -180,5 +191,16 @@ describe("bot decisions", () => {
       if (d.targetId !== undefined) chosen.add(d.targetId);
     }
     expect(chosen.size).toBeGreaterThan(1);
+  });
+
+  it("is deterministic for the same state at every difficulty", () => {
+    for (const difficulty of ["easy", "medium", "hard"] as const) {
+      for (let seed = 0; seed < 20; seed++) {
+        const s = createMatch(["You", "B1", "B2", "B3"], seed);
+        const first = decideBotMove(s, s.currentPlayerIndex, difficulty);
+        const second = decideBotMove(s, s.currentPlayerIndex, difficulty);
+        expect(second).toEqual(first);
+      }
+    }
   });
 });

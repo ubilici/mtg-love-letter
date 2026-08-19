@@ -1,7 +1,19 @@
 import { ALL_VALUES, CARD_DEFS, cardName, type CardValue } from "./cards";
 import { forcedCountess, legalTargets, playableCards } from "./engine";
 import { getKnown } from "./knowledge";
+import { createRng, type Rng } from "./rng";
 import type { GameState, PlayDecision, PlayerId } from "./types";
+
+function botRng(state: GameState, botId: PlayerId): Rng {
+  const seed =
+    (Math.imul(state.seed >>> 0 || 1, 2654435761) ^
+      Math.imul(state.round + 1, 40503) ^
+      Math.imul(state.deck.length + 1, 19349663) ^
+      Math.imul(botId + 1, 83492791) ^
+      Math.imul(state.log.length + 1, 2246822519)) >>>
+    0;
+  return createRng(seed);
+}
 
 interface Distribution {
   counts: Record<number, number>;
@@ -13,6 +25,39 @@ const W_FAVOR = 0.15;
 const W_RISK = 0.8;
 const W_UTIL_PRINCE = 0.6;
 const W_UTIL_PRIEST = 1;
+
+const MEDIUM_SLIP_CHANCE = 0.4;
+const PRIEST_EARLY_DECK = 4;
+
+const SCORE = {
+  handmaidBase: 1.2,
+  handmaidThreat: 3,
+  handmaidVuln: 1.5,
+  handmaidVulnFallback: 0.3,
+  countessBase: 1.5,
+  countessKeepThreshold: 6,
+  countessKeepMult: 0.4,
+  guardBase: 0.4,
+  guardHitMult: 7,
+  guardFallback: 0.2,
+  priestBase: 1.0,
+  priestInfoEarly: 1.2,
+  priestInfoLate: 0.4,
+  priestNoInfo: 0.4,
+  priestNoTarget: 0.1,
+  baronBase: 0.3,
+  baronWinMult: 5,
+  baronLoseMult: 8,
+  baronNoTarget: 0.5,
+  princeKnownPrincess: 8,
+  princeEvBase: 0.5,
+  princeEvMult: 0.5,
+  princeFallback: 0.2,
+  kingBase: 0.5,
+  kingGainMult: 1.2,
+  kingNoTarget: 0.3,
+  fallback: 0.5,
+} as const;
 
 function favorPressure(state: GameState, playerId: PlayerId): number {
   return state.players[playerId].favor / (state.tokensToWin || 1);
@@ -149,16 +194,17 @@ function randomMove(
   state: GameState,
   botId: PlayerId,
   playable: CardValue[],
+  rng: Rng,
 ): PlayDecision {
-  const card = playable[Math.floor(Math.random() * playable.length)];
+  const card = playable[Math.floor(rng.next() * playable.length)];
   const def = CARD_DEFS[card];
   if (!def.needsTarget) return { card };
   const targets = legalTargets(state, botId, card);
   if (targets.length === 0) return { card };
-  const targetId = targets[Math.floor(Math.random() * targets.length)];
+  const targetId = targets[Math.floor(rng.next() * targets.length)];
   if (def.needsGuess) {
     const guesses = ALL_VALUES.filter((v) => v !== 1);
-    const guess = guesses[Math.floor(Math.random() * guesses.length)];
+    const guess = guesses[Math.floor(rng.next() * guesses.length)];
     return { card, targetId, guess };
   }
   return { card, targetId };
@@ -177,7 +223,9 @@ export function decideBotMove(
   const legal = playableCards(hand).filter((c) => c !== 8);
   const playable = legal.length > 0 ? legal : playableCards(hand);
 
-  if (difficulty === "easy") return randomMove(state, botId, playable);
+  const rng = botRng(state, botId);
+
+  if (difficulty === "easy") return randomMove(state, botId, playable, rng);
 
   const dist = unseenDistribution(state, botId);
 
@@ -189,10 +237,13 @@ export function decideBotMove(
 
     if (card === 4) {
       const threat = threatLevel(state, botId, dist);
-      const vuln = keptCard ? keptCard / 8 : 0.3;
+      const vuln = keptCard ? keptCard / 8 : SCORE.handmaidVulnFallback;
       candidates.push({
         decision: { card },
-        score: 1.2 + threat * 3 + vuln * 1.5,
+        score:
+          SCORE.handmaidBase +
+          threat * SCORE.handmaidThreat +
+          vuln * SCORE.handmaidVuln,
       });
       continue;
     }
@@ -201,7 +252,11 @@ export function decideBotMove(
       const keepValue = keptCard ?? 0;
       candidates.push({
         decision: { card },
-        score: 1.5 + (keepValue >= 6 ? keepValue * 0.4 : 0),
+        score:
+          SCORE.countessBase +
+          (keepValue >= SCORE.countessKeepThreshold
+            ? keepValue * SCORE.countessKeepMult
+            : 0),
       });
       continue;
     }
@@ -224,10 +279,10 @@ export function decideBotMove(
       if (best) {
         candidates.push({
           decision: { card, targetId: best.targetId, guess: best.guess },
-          score: 0.4 + best.p * 7,
+          score: SCORE.guardBase + best.p * SCORE.guardHitMult,
         });
       } else {
-        candidates.push({ decision: { card }, score: 0.2 });
+        candidates.push({ decision: { card }, score: SCORE.guardFallback });
       }
       continue;
     }
@@ -246,22 +301,25 @@ export function decideBotMove(
           best = { targetId: t, util };
         }
       }
-      const infoBonus = state.deck.length > 4 ? 1.2 : 0.4;
+      const infoBonus =
+        state.deck.length > PRIEST_EARLY_DECK
+          ? SCORE.priestInfoEarly
+          : SCORE.priestInfoLate;
       if (best) {
         candidates.push({
           decision: { card, targetId: best.targetId },
-          score: best.util > 0 ? 1.0 + infoBonus : 0.4,
+          score:
+            best.util > 0 ? SCORE.priestBase + infoBonus : SCORE.priestNoInfo,
         });
       } else {
-        candidates.push({ decision: { card }, score: 0.1 });
+        candidates.push({ decision: { card }, score: SCORE.priestNoTarget });
       }
       continue;
     }
 
     if (card === 3) {
       const myVal = keptCard ?? 0;
-      let best: { targetId: PlayerId; win: number; lose: number } | null =
-        null;
+      let best: { targetId: PlayerId; win: number; lose: number } | null = null;
       let bestScore = -Infinity;
       for (const t of targets) {
         const win = probLower(state, botId, t, myVal, dist);
@@ -279,10 +337,13 @@ export function decideBotMove(
       if (best) {
         candidates.push({
           decision: { card, targetId: best.targetId },
-          score: 0.3 + best.win * 5 - best.lose * 8,
+          score:
+            SCORE.baronBase +
+            best.win * SCORE.baronWinMult -
+            best.lose * SCORE.baronLoseMult,
         });
       } else {
-        candidates.push({ decision: { card }, score: 0.5 });
+        candidates.push({ decision: { card }, score: SCORE.baronNoTarget });
       }
       continue;
     }
@@ -300,7 +361,10 @@ export function decideBotMove(
           W_UTIL_PRINCE * (ev / 8) +
           W_FAVOR * favorPressure(state, t) +
           targetJitter(botId, t, card, state);
-        const cardScore = known === 8 ? 8 : 0.5 + ev * 0.5;
+        const cardScore =
+          known === 8
+            ? SCORE.princeKnownPrincess
+            : SCORE.princeEvBase + ev * SCORE.princeEvMult;
         if (s > bestScore) {
           bestScore = s;
           best = { targetId: t, cardScore };
@@ -312,9 +376,12 @@ export function decideBotMove(
           score: best.cardScore,
         });
       } else if (targets.some((t) => t === botId)) {
-        candidates.push({ decision: { card, targetId: botId }, score: 0.2 });
+        candidates.push({
+          decision: { card, targetId: botId },
+          score: SCORE.princeFallback,
+        });
       } else {
-        candidates.push({ decision: { card }, score: 0.2 });
+        candidates.push({ decision: { card }, score: SCORE.princeFallback });
       }
       continue;
     }
@@ -337,15 +404,15 @@ export function decideBotMove(
       if (best) {
         candidates.push({
           decision: { card, targetId: best.targetId },
-          score: 0.5 + Math.max(0, best.gain) * 1.2,
+          score: SCORE.kingBase + Math.max(0, best.gain) * SCORE.kingGainMult,
         });
       } else {
-        candidates.push({ decision: { card }, score: 0.3 });
+        candidates.push({ decision: { card }, score: SCORE.kingNoTarget });
       }
       continue;
     }
 
-    candidates.push({ decision: { card }, score: 0.5 });
+    candidates.push({ decision: { card }, score: SCORE.fallback });
   }
 
   candidates.sort((a, b) => b.score - a.score);
@@ -353,9 +420,9 @@ export function decideBotMove(
   if (
     difficulty === "medium" &&
     candidates.length > 1 &&
-    Math.random() < 0.4
+    rng.next() < MEDIUM_SLIP_CHANCE
   ) {
-    return candidates[Math.floor(Math.random() * candidates.length)].decision;
+    return candidates[Math.floor(rng.next() * candidates.length)].decision;
   }
 
   return candidates[0]?.decision ?? { card: playable[0] };
@@ -434,14 +501,21 @@ export function explainBotMove(
         return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: it learned ${tName}'s card earlier and holds it with certainty (100%)${shieldNote}.`;
       }
       const p = probHolds(state, botId, target.id, guess, dist);
-      return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: estimated ~${pct(p)}% (${dist.counts[guess]} of ${dist.total} unseen cards are ${cardName(guess)}), the highest-probability guess across rivals${favorTag}${shieldNote}.`;
+      const optimal = guardBestGuess(state, botId, target.id, dist).guess;
+      const optimalNote =
+        optimal === guess
+          ? ", the highest-probability guess across rivals"
+          : "";
+      return `${name} plays Zombie on ${tName}, naming ${cardName(guess)}: estimated ~${pct(p)}% (${dist.counts[guess]} of ${dist.total} unseen cards are ${cardName(guess)})${optimalNote}${favorTag}${shieldNote}.`;
     }
     case 2: {
       if (!target) {
         return `${name} plays Dark Confidant with no valid target${shieldNote}.`;
       }
       return `${name} plays Dark Confidant on ${tName} to gather information: ${tPoss} hand is unknown${
-        state.deck.length > 4 ? `, and the round is young (${state.deck.length} left in deck)` : ""
+        state.deck.length > 4
+          ? `, and the round is young (${state.deck.length} left in deck)`
+          : ""
       }${shieldNote}.`;
     }
     case 3: {

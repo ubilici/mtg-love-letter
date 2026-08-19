@@ -14,6 +14,7 @@ import { RevealToast } from "./RevealToast";
 import { playSound } from "../lib/sound";
 import { RoundBanner } from "./RoundBanner";
 import { MatchOverScreen } from "./MatchOverScreen";
+import { useEscape } from "../lib/useEscape";
 
 type Controller = ReturnType<typeof useGameController>;
 
@@ -109,6 +110,8 @@ export function GameTable({
     if (!isHumanActable) setSelected(null);
   }, [isHumanActable]);
 
+  useEscape(() => setShowLog(false));
+
   const human = state.players[0];
   const playable = playableCards(human.hand);
 
@@ -128,7 +131,9 @@ export function GameTable({
 
   const currentName = state.players[state.currentPlayerIndex].name;
   const turnLabel =
-    state.currentPlayerIndex === 0 ? "Your turn" : `${currentName} is scheming…`;
+    state.currentPlayerIndex === 0
+      ? "Your turn"
+      : `${currentName} is scheming…`;
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden">

@@ -3,7 +3,11 @@ import type { GameState } from "../game/types";
 import type { BotAction } from "../lib/useGameController";
 import { Card } from "./Card";
 
-function targetName(state: GameState, botId: number, targetId?: number): string {
+function targetName(
+  state: GameState,
+  botId: number,
+  targetId?: number,
+): string {
   if (targetId === undefined) return "";
   if (targetId === botId) return "themselves";
   if (targetId === 0) return "you";
@@ -21,8 +25,7 @@ function describe(state: GameState, action: BotAction): string {
         ? `${bot} names ${CARD_DEFS[decision.guess].mtgName} against ${who}.`
         : `${bot} plays Zombie.`;
     case 2: {
-      const poss =
-        decision.targetId === 0 ? "your" : who ? `${who}'s` : "";
+      const poss = decision.targetId === 0 ? "your" : who ? `${who}'s` : "";
       return poss
         ? `${bot} peeks at ${poss} hand.`
         : `${bot} plays Dark Confidant.`;

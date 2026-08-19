@@ -12,7 +12,11 @@ import {
 import { createKnowledge } from "./knowledge";
 import type { GameState, Player } from "./types";
 
-function mkPlayer(id: number, hand: CardValue[], over: Partial<Player> = {}): Player {
+function mkPlayer(
+  id: number,
+  hand: CardValue[],
+  over: Partial<Player> = {},
+): Player {
   return {
     id,
     name: id === 0 ? "You" : `Bot ${id}`,
@@ -206,18 +210,14 @@ describe("Handmaid", () => {
     expect(targets).not.toContain(0);
   });
   it("guard fizzles when the only target is protected", () => {
-    const s = mkState(
-      [[1, 4], [3], [2], [5]],
-      [6, 6],
-      {
-        players: [
-          mkPlayer(0, [1, 4]),
-          mkPlayer(1, [3], { isProtected: true }),
-          mkPlayer(2, [2], { isOut: true }),
-          mkPlayer(3, [5], { isOut: true }),
-        ],
-      },
-    );
+    const s = mkState([[1, 4], [3], [2], [5]], [6, 6], {
+      players: [
+        mkPlayer(0, [1, 4]),
+        mkPlayer(1, [3], { isProtected: true }),
+        mkPlayer(2, [2], { isOut: true }),
+        mkPlayer(3, [5], { isOut: true }),
+      ],
+    });
     const r = playCard(s, { card: 1, targetId: 1, guess: 3 });
     expect(r.players[1].isOut).toBe(false);
   });
@@ -225,18 +225,14 @@ describe("Handmaid", () => {
 
 describe("round end", () => {
   it("ends when only one player remains", () => {
-    const s = mkState(
-      [[1, 4], [3], [2], [5]],
-      [6, 6],
-      {
-        players: [
-          mkPlayer(0, [1, 4]),
-          mkPlayer(1, [3]),
-          mkPlayer(2, [2], { isOut: true }),
-          mkPlayer(3, [5], { isOut: true }),
-        ],
-      },
-    );
+    const s = mkState([[1, 4], [3], [2], [5]], [6, 6], {
+      players: [
+        mkPlayer(0, [1, 4]),
+        mkPlayer(1, [3]),
+        mkPlayer(2, [2], { isOut: true }),
+        mkPlayer(3, [5], { isOut: true }),
+      ],
+    });
     const r = playCard(s, { card: 1, targetId: 1, guess: 3 });
     expect(r.phase).toBe("roundOver");
     expect(r.roundWinnerIds).toEqual([0]);
@@ -244,18 +240,14 @@ describe("round end", () => {
   });
 
   it("compares hands when the deck runs out (highest wins)", () => {
-    const s = mkState(
-      [[4, 2], [7], [1], [3]],
-      [],
-      {
-        players: [
-          mkPlayer(0, [4, 2]),
-          mkPlayer(1, [7]),
-          mkPlayer(2, [1], { isOut: true }),
-          mkPlayer(3, [3], { isOut: true }),
-        ],
-      },
-    );
+    const s = mkState([[4, 2], [7], [1], [3]], [], {
+      players: [
+        mkPlayer(0, [4, 2]),
+        mkPlayer(1, [7]),
+        mkPlayer(2, [1], { isOut: true }),
+        mkPlayer(3, [3], { isOut: true }),
+      ],
+    });
     // player 0 plays Handmaid, keeps 2; deck empty -> compare: Bot1 has 7 > 2
     const r = playCard(s, { card: 4 });
     expect(r.phase).toBe("roundOver");
@@ -300,18 +292,14 @@ describe("match end", () => {
   });
 
   it("continues to a new round below the threshold", () => {
-    const s = mkState(
-      [[1, 4], [3], [2], [5]],
-      [6, 6],
-      {
-        players: [
-          mkPlayer(0, [1, 4]),
-          mkPlayer(1, [3]),
-          mkPlayer(2, [2], { isOut: true }),
-          mkPlayer(3, [5], { isOut: true }),
-        ],
-      },
-    );
+    const s = mkState([[1, 4], [3], [2], [5]], [6, 6], {
+      players: [
+        mkPlayer(0, [1, 4]),
+        mkPlayer(1, [3]),
+        mkPlayer(2, [2], { isOut: true }),
+        mkPlayer(3, [5], { isOut: true }),
+      ],
+    });
     const over = playCard(s, { card: 1, targetId: 1, guess: 3 });
     expect(over.phase).toBe("roundOver");
     const next = beginNextRound(over);

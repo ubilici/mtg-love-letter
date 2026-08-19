@@ -25,27 +25,27 @@ npm run test      # engine + bot unit tests (Vitest)
 
 The 8 Love Letter roles map onto the MTG art in `public/cards/`:
 
-| Value | Role | Card | Effect |
-|------|------|------|--------|
-| 1 | Guard | Zombie | Name a card 2-8; a matching rival is cast out |
-| 2 | Priest | Dark Confidant | Look at a rival's hand |
-| 3 | Baron | Deadly Assassin | Compare hands; the lesser is cast out |
-| 4 | Handmaid | Grave Titan | Untargetable until your next turn |
-| 5 | Prince | The Raven Man | A player discards and redraws |
-| 6 | King | Nicol Bolas | Trade hands with a rival |
-| 7 | Countess | Griselbrand | Must discard if held with King or Prince |
-| 8 | Princess | Liliana Vess | Discard her and you are cast out |
+| Value | Role     | Card            | Effect                                        |
+| ----- | -------- | --------------- | --------------------------------------------- |
+| 1     | Guard    | Zombie          | Name a card 2-8; a matching rival is cast out |
+| 2     | Priest   | Dark Confidant  | Look at a rival's hand                        |
+| 3     | Baron    | Deadly Assassin | Compare hands; the lesser is cast out         |
+| 4     | Handmaid | Grave Titan     | Untargetable until your next turn             |
+| 5     | Prince   | The Raven Man   | A player discards and redraws                 |
+| 6     | King     | Nicol Bolas     | Trade hands with a rival                      |
+| 7     | Countess | Griselbrand     | Must discard if held with King or Prince      |
+| 8     | Princess | Liliana Vess    | Discard her and you are cast out              |
 
 ## Tables
 
 Pick a table before a match. The favor target follows the official Love Letter
 thresholds:
 
-| Table | Bots | Favors to win |
-|-------|------|---------------|
-| 2 players | 1 | 7 |
-| 3 players | 2 | 5 |
-| 4 players | 3 | 4 |
+| Table     | Bots | Favors to win |
+| --------- | ---- | ------------- |
+| 2 players | 1    | 7             |
+| 3 players | 2    | 5             |
+| 4 players | 3    | 4             |
 
 In the 2-player table, three cards are dealt face-up at the start of each round
 (the official variant rule).
@@ -77,8 +77,8 @@ A Grimoire button opens a reference of every card and how many are in the deck.
 
 ## Disclaimer
 
-This is a non-commercial fan project. *Love Letter* is a game designed by Seiji
-Kanai. *Magic: The Gathering* and its characters (Liliana Vess, Nicol Bolas,
+This is a non-commercial fan project. _Love Letter_ is a game designed by Seiji
+Kanai. _Magic: The Gathering_ and its characters (Liliana Vess, Nicol Bolas,
 Griselbrand, and others) are trademarks and property of Wizards of the Coast.
 This project is not affiliated with or endorsed by either.
 

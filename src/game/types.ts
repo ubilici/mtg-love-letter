@@ -16,11 +16,7 @@ export interface Player {
 }
 
 export type GamePhase =
-  | "roundStart"
-  | "awaitingPlay"
-  | "resolving"
-  | "roundOver"
-  | "matchOver";
+  "roundStart" | "awaitingPlay" | "resolving" | "roundOver" | "matchOver";
 
 export interface LogEntry {
   id: number;

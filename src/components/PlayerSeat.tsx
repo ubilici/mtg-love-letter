@@ -22,7 +22,9 @@ function SeatCards({
       {!player.isOut && showHand && (
         <div className="flex items-center gap-1">
           {Array.from({ length: Math.max(1, player.hand.length) }).map(
-            (_, i) => <CardBack key={i} size={size} />,
+            (_, i) => (
+              <CardBack key={i} size={size} />
+            ),
           )}
         </div>
       )}

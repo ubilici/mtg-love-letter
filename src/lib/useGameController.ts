@@ -36,7 +36,9 @@ export interface BotAction {
 
 function playActionSounds(prev: GameState, next: GameState): void {
   const newEntries = next.log.slice(prev.log.length);
-  const guardPlayed = newEntries.some((e) => e.kind === "play" && e.value === 1);
+  const guardPlayed = newEntries.some(
+    (e) => e.kind === "play" && e.value === 1,
+  );
   const eliminated = newEntries.some((e) => e.kind === "eliminate");
   if (guardPlayed && eliminated) playSound("guard_hit");
   else playSound("card_play");
@@ -140,19 +142,17 @@ export function useGameController() {
 
     if (!announce) {
       timer.current = setTimeout(() => {
-        setState((s) => {
-          if (
-            s.phase === "awaitingPlay" &&
-            s.players[s.currentPlayerIndex].isBot
-          ) {
-            const botId = s.currentPlayerIndex;
-            setAnnounce({
-              botId,
-              decision: decideBotMove(s, botId, getDifficulty()),
-            });
-          }
-          return s;
-        });
+        const s = stateRef.current;
+        if (
+          s.phase === "awaitingPlay" &&
+          s.players[s.currentPlayerIndex].isBot
+        ) {
+          const botId = s.currentPlayerIndex;
+          setAnnounce({
+            botId,
+            decision: decideBotMove(s, botId, getDifficulty()),
+          });
+        }
       }, THINK_MS);
     } else if (!stepMode) {
       timer.current = setTimeout(() => {
