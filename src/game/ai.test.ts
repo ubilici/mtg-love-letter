@@ -181,4 +181,15 @@ describe("bot decisions", () => {
     }
     expect(chosen.size).toBeGreaterThan(1);
   });
+
+  it("is deterministic for the same state at every difficulty", () => {
+    for (const difficulty of ["easy", "medium", "hard"] as const) {
+      for (let seed = 0; seed < 20; seed++) {
+        const s = createMatch(["You", "B1", "B2", "B3"], seed);
+        const first = decideBotMove(s, s.currentPlayerIndex, difficulty);
+        const second = decideBotMove(s, s.currentPlayerIndex, difficulty);
+        expect(second).toEqual(first);
+      }
+    }
+  });
 });
