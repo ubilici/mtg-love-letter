@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { boolPersist, createStore, useStore } from "./store";
 
 export type SoundKey =
   | "card_play"
@@ -25,29 +25,14 @@ const VOLUME: Record<SoundKey, number> = {
 
 const STORAGE_KEY = "ll_muted";
 
-function readMuted(): boolean {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-let muted = readMuted();
-const listeners = new Set<() => void>();
+const mutedStore = createStore(false, boolPersist(STORAGE_KEY));
 
 export function isMuted(): boolean {
-  return muted;
+  return mutedStore.get();
 }
 
 export function toggleMuted(): void {
-  muted = !muted;
-  try {
-    localStorage.setItem(STORAGE_KEY, muted ? "1" : "0");
-  } catch {
-    // ignore
-  }
-  listeners.forEach((l) => l());
+  mutedStore.set(!mutedStore.get());
 }
 
 const KEYS = Object.keys(SRC) as SoundKey[];
@@ -95,13 +80,13 @@ function getBuffer(context: AudioContext, key: SoundKey): Promise<AudioBuffer> {
 }
 
 export function playSound(key: SoundKey): void {
-  if (muted) return;
+  if (mutedStore.get()) return;
   const context = getContext();
   if (!context) return;
   if (context.state === "suspended") void context.resume();
   getBuffer(context, key)
     .then((buffer) => {
-      if (muted) return;
+      if (mutedStore.get()) return;
       const source = context.createBufferSource();
       source.buffer = buffer;
       const gain = context.createGain();
@@ -113,13 +98,5 @@ export function playSound(key: SoundKey): void {
 }
 
 export function useMuted(): boolean {
-  const [value, setValue] = useState(muted);
-  useEffect(() => {
-    const listener = () => setValue(muted);
-    listeners.add(listener);
-    return () => {
-      listeners.delete(listener);
-    };
-  }, []);
-  return value;
+  return useStore(mutedStore);
 }
