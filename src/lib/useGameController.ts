@@ -142,19 +142,17 @@ export function useGameController() {
 
     if (!announce) {
       timer.current = setTimeout(() => {
-        setState((s) => {
-          if (
-            s.phase === "awaitingPlay" &&
-            s.players[s.currentPlayerIndex].isBot
-          ) {
-            const botId = s.currentPlayerIndex;
-            setAnnounce({
-              botId,
-              decision: decideBotMove(s, botId, getDifficulty()),
-            });
-          }
-          return s;
-        });
+        const s = stateRef.current;
+        if (
+          s.phase === "awaitingPlay" &&
+          s.players[s.currentPlayerIndex].isBot
+        ) {
+          const botId = s.currentPlayerIndex;
+          setAnnounce({
+            botId,
+            decision: decideBotMove(s, botId, getDifficulty()),
+          });
+        }
       }, THINK_MS);
     } else if (!stepMode) {
       timer.current = setTimeout(() => {

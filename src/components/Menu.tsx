@@ -3,6 +3,7 @@ import { Grimoire } from "./Grimoire";
 import { Settings } from "./Settings";
 import { playSound } from "../lib/sound";
 import { tokensForPlayers } from "../game/engine";
+import { useEscape } from "../lib/useEscape";
 
 const MODES: { count: number; rivals: number; note?: string }[] = [
   { count: 2, rivals: 1, note: "3 cards revealed each round" },
@@ -14,6 +15,8 @@ export function Menu({ onStart }: { onStart: (playerCount: number) => void }) {
   const [showGrimoire, setShowGrimoire] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSelect, setShowSelect] = useState(false);
+
+  useEscape(() => setShowSelect(false));
 
   return (
     <div className="relative mx-auto flex h-dvh w-full max-w-3xl flex-col items-center justify-center overflow-hidden px-4">
